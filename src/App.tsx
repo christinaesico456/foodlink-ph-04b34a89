@@ -8,7 +8,7 @@ import Navigation from "./components/Navigation";
 import GamificationBar from "./components/GamificationBar";
 import Home from "./pages/Home";
 import About from "./pages/About";
-import Partners from "./pages/Partners";
+import Organizations from "./pages/Organizations";
 import GetInvolved from "./pages/GetInvolved";
 import Updates from "./pages/Updates";
 import NotFound from "./pages/NotFound";
@@ -27,7 +27,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
-            <Route path="/partners" element={<Partners />} />
+            <Route path="/organizations" element={<Organizations />} />
             <Route path="/get-involved" element={<GetInvolved />} />
             <Route path="/updates" element={<Updates />} />
             <Route path="*" element={<NotFound />} />
