@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Building2, MapPin, Phone, Globe, Mail } from "lucide-react";
 import { useGamification } from "@/contexts/GamificationContext";
 import { useEffect } from "react";
+import CaviteMap from "@/components/CaviteMap";
 
 const Organizations = () => {
   const { addPoints } = useGamification();
@@ -17,6 +18,7 @@ const Organizations = () => {
       description: "Department of Social Welfare and Development - CALABARZON implements feeding programs, cash assistance, and livelihood projects for vulnerable families in Cavite.",
       location: "Regional Center, Calamba, Laguna (serves Cavite)",
       contact: "dswd.calabarzon@dswd.gov.ph",
+      website: "https://ro4a.dswd.gov.ph/",
       focus: ["Feeding Programs", "Pantawid Pamilya", "Supplementary Feeding"],
       color: "primary"
     },
@@ -26,6 +28,7 @@ const Organizations = () => {
       description: "Cavite Provincial Government coordinates various nutrition and food security programs across municipalities, including the Provincial Nutrition Council.",
       location: "Trece Martires City, Cavite",
       contact: "(046) 419-3164",
+      website: "https://cavite.gov.ph/",
       focus: ["Nutrition Programs", "Agri Support", "Community Kitchens"],
       color: "secondary"
     },
@@ -34,7 +37,7 @@ const Organizations = () => {
       type: "Non-Profit Organization",
       description: "International hunger relief organization providing meal packing events and distributing food packages to communities in Metro Manila and nearby provinces including Cavite.",
       location: "Metro Manila (operates in Cavite)",
-      website: "riseagainsthunger.ph",
+      website: "https://www.riseagainsthunger.ph/",
       focus: ["Food Distribution", "Meal Packing", "Community Outreach"],
       color: "accent"
     },
@@ -43,7 +46,7 @@ const Organizations = () => {
       type: "Non-Profit Organization",
       description: "Nation-building movement with active communities in Cavite focused on poverty alleviation, housing, and community development including food security programs.",
       location: "Multiple GK Villages in Cavite",
-      website: "gk1world.com",
+      website: "https://gk1world.com/",
       focus: ["Community Building", "Food Security", "Livelihood Programs"],
       color: "earth"
     },
@@ -53,6 +56,7 @@ const Organizations = () => {
       description: "Provides humanitarian services including disaster response, feeding programs, and health services to vulnerable populations across Cavite province.",
       location: "Various chapters across Cavite",
       contact: "cavite@redcross.org.ph",
+      website: "https://redcross.org.ph/",
       focus: ["Emergency Feeding", "Disaster Response", "Health Services"],
       color: "primary"
     },
@@ -61,7 +65,7 @@ const Organizations = () => {
       type: "Non-Profit Organization",
       description: "Child-focused organization with programs in Cavite addressing child hunger, malnutrition, and promoting sustainable agriculture in rural communities.",
       location: "Operates in multiple Cavite municipalities",
-      website: "worldvision.org.ph",
+      website: "https://www.worldvision.org.ph/",
       focus: ["Child Nutrition", "Sustainable Agriculture", "Community Development"],
       color: "secondary"
     }
@@ -94,6 +98,28 @@ const Organizations = () => {
         </div>
       </section>
 
+      {/* Interactive Map Section */}
+      <section className="py-20 bg-gradient-to-b from-background to-primary/5">
+        <div className="container mx-auto px-4">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/30 mb-4">
+                <MapPin className="h-4 w-4 text-primary" />
+                <span className="text-sm font-bold text-primary">Interactive Map</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">
+                Explore <span className="text-primary">Cavite</span>
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Discover feeding programs and food security initiatives across Cavite municipalities
+              </p>
+            </div>
+            
+            <CaviteMap />
+          </div>
+        </div>
+      </section>
+
       {/* Organizations Grid */}
       <section className="py-20">
         <div className="container mx-auto px-4">
@@ -102,7 +128,12 @@ const Organizations = () => {
               <Card
                 key={index}
                 className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer"
-                onClick={() => addPoints(3, 'view_organization')}
+                onClick={() => {
+                  addPoints(3, 'view_organization');
+                  if (org.website) {
+                    window.open(org.website, '_blank');
+                  }
+                }}
               >
                 <div className={`absolute inset-0 bg-gradient-to-br from-${org.color}/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
                 
@@ -166,9 +197,17 @@ const Organizations = () => {
                     )}
                     
                     {org.website && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2 text-sm">
                         <Globe className="h-4 w-4 text-primary" />
-                        <span>{org.website}</span>
+                        <a 
+                          href={org.website} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline font-medium"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Visit Website
+                        </a>
                       </div>
                     )}
                   </div>
