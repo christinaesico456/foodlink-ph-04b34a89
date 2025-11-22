@@ -1,22 +1,16 @@
 import { useGamification } from '@/contexts/GamificationContext';
-import { Trophy, Star, Flame, Award } from 'lucide-react';
+import { Target, Users, Heart, Flame, TrendingUp, CheckCircle } from 'lucide-react';
 import { Card } from './ui/card';
 import { useState } from 'react';
 import { Button } from './ui/button';
+import { Progress } from './ui/progress';
 
 const GamificationBar = () => {
-  const { points, level, badges, streak } = useGamification();
+  const { missions, impactMetrics, streak } = useGamification();
   const [isExpanded, setIsExpanded] = useState(false);
-  const unlockedBadges = badges.filter(b => b.unlocked);
-  const progress = (points % 50) * 2;
-  const pointsToNextLevel = 50 - (points % 50);
-
-  const rarityColors = {
-    common: 'bg-secondary/20 border-secondary',
-    rare: 'bg-blue-500/20 border-blue-500',
-    epic: 'bg-purple-500/20 border-purple-500',
-    legendary: 'bg-primary/20 border-primary',
-  };
+  const completedMissions = missions.filter(m => m.completed).length;
+  const totalMissions = missions.length;
+  const progressPercentage = (completedMissions / totalMissions) * 100;
 
   return (
     <div className="fixed top-20 right-4 z-50 w-80 animate-fade-in">
@@ -26,56 +20,61 @@ const GamificationBar = () => {
         
         <div className="relative p-4">
           {/* Header */}
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className="relative">
-                <Star className="h-6 w-6 text-primary animate-pulse-glow" fill="currentColor" />
-                <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {level}
-                </div>
-              </div>
-              <div>
-                <div className="text-sm font-bold text-foreground">Level {level}</div>
-                <div className="text-xs text-muted-foreground">{pointsToNextLevel} pts to next</div>
-              </div>
+              <Target className="h-5 w-5 text-primary" />
+              <h3 className="text-sm font-bold text-foreground">Your Impact</h3>
             </div>
             
-            <div className="flex items-center gap-3">
-              {/* Streak */}
-              {streak > 0 && (
-                <div className="flex items-center gap-1 px-2 py-1 bg-accent/20 rounded-full border border-accent/30">
-                  <Flame className="h-4 w-4 text-accent" fill="currentColor" />
-                  <span className="text-xs font-bold text-foreground">{streak}</span>
-                </div>
-              )}
-              
-              {/* Points */}
-              <div className="flex items-center gap-1 px-3 py-1 bg-primary/20 rounded-full border border-primary/30">
-                <Trophy className="h-4 w-4 text-primary" />
-                <span className="text-sm font-bold text-foreground">{points}</span>
+            {/* Streak */}
+            {streak > 0 && (
+              <div className="flex items-center gap-1 px-2 py-1 bg-accent/20 rounded-full border border-accent/30">
+                <Flame className="h-4 w-4 text-accent" fill="currentColor" />
+                <span className="text-xs font-bold text-foreground">{streak} day{streak > 1 ? 's' : ''}</span>
               </div>
-            </div>
+            )}
           </div>
-          
-          {/* Progress Bar */}
-          <div className="mb-4">
-            <div className="h-3 bg-muted/50 rounded-full overflow-hidden relative border border-primary/20">
-              <div 
-                className="h-full bg-gradient-to-r from-primary via-accent to-secondary transition-all duration-500 relative"
-                style={{ width: `${progress}%` }}
-              >
-                <div className="absolute inset-0 bg-white/30 animate-pulse"></div>
+
+          {/* Impact Metrics Grid */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="bg-primary/10 backdrop-blur-sm rounded-lg p-3 border border-primary/20">
+              <div className="flex items-center gap-2 mb-1">
+                <Users className="h-4 w-4 text-primary" />
+                <span className="text-xs text-muted-foreground">People Reached</span>
               </div>
+              <div className="text-2xl font-black text-foreground">{impactMetrics.peopleReached}</div>
+            </div>
+
+            <div className="bg-accent/10 backdrop-blur-sm rounded-lg p-3 border border-accent/20">
+              <div className="flex items-center gap-2 mb-1">
+                <Heart className="h-4 w-4 text-accent" />
+                <span className="text-xs text-muted-foreground">Actions</span>
+              </div>
+              <div className="text-2xl font-black text-foreground">{impactMetrics.actionsCompleted}</div>
+            </div>
+
+            <div className="bg-secondary/10 backdrop-blur-sm rounded-lg p-3 border border-secondary/20 col-span-2">
+              <div className="flex items-center gap-2 mb-1">
+                <TrendingUp className="h-4 w-4 text-secondary" />
+                <span className="text-xs text-muted-foreground">Meal Equivalent Impact</span>
+              </div>
+              <div className="text-2xl font-black text-foreground">{impactMetrics.mealEquivalent} meals</div>
             </div>
           </div>
 
-          {/* Badges Section */}
+          {/* Mission Progress */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-foreground">Mission Progress</span>
+              <span className="text-xs text-muted-foreground">{completedMissions}/{totalMissions}</span>
+            </div>
+            <Progress value={progressPercentage} className="h-2" />
+          </div>
+
+          {/* Missions List */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Award className="h-4 w-4 text-accent" />
-                <span className="text-xs font-bold text-foreground">Badges ({unlockedBadges.length}/{badges.length})</span>
-              </div>
+              <span className="text-xs font-bold text-foreground">Missions</span>
               <Button
                 variant="ghost"
                 size="sm"
@@ -86,36 +85,52 @@ const GamificationBar = () => {
               </Button>
             </div>
             
-            <div className={`grid grid-cols-4 gap-2 ${isExpanded ? 'max-h-96' : 'max-h-20'} overflow-y-auto transition-all duration-300`}>
-              {badges.map(badge => (
+            <div className={`space-y-2 ${isExpanded ? 'max-h-96' : 'max-h-32'} overflow-y-auto transition-all duration-300`}>
+              {missions.map(mission => (
                 <div
-                  key={badge.id}
-                  className={`relative aspect-square rounded-lg border-2 flex items-center justify-center transition-all cursor-pointer hover:scale-110 ${
-                    badge.unlocked 
-                      ? `${rarityColors[badge.rarity]} scale-100 opacity-100` 
-                      : 'bg-muted/30 border-border scale-90 opacity-40 grayscale'
+                  key={mission.id}
+                  className={`p-3 rounded-lg border transition-all ${
+                    mission.completed 
+                      ? 'bg-primary/10 border-primary/30' 
+                      : 'bg-muted/30 border-border/30'
                   }`}
-                  title={badge.unlocked ? `${badge.name}\n${badge.description}` : `🔒 ${badge.name}\nRequires: ${badge.requirement} ${badge.id === 'weekly_warrior' ? 'day streak' : 'points'}`}
                 >
-                  <span className="text-2xl">{badge.icon}</span>
-                  {badge.unlocked && (
-                    <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-4 h-4 flex items-center justify-center">
-                      <span className="text-xs">✓</span>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle 
+                      className={`h-4 w-4 flex-shrink-0 mt-0.5 ${
+                        mission.completed ? 'text-primary' : 'text-muted-foreground'
+                      }`}
+                      fill={mission.completed ? 'currentColor' : 'none'}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className={`text-xs font-bold ${
+                        mission.completed ? 'text-foreground' : 'text-muted-foreground'
+                      }`}>
+                        {mission.title}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {mission.description}
+                      </div>
+                      {mission.completed && (
+                        <div className="text-xs text-primary font-bold mt-1">
+                          {mission.impact}
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Fun Motivational Message */}
-          <div className="mt-3 pt-3 border-t border-border/50">
+          {/* Motivational Message */}
+          <div className="mt-4 pt-4 border-t border-border/50">
             <p className="text-xs text-center text-muted-foreground italic">
-              {points < 50 && "Keep exploring to unlock more!"}
-              {points >= 50 && points < 100 && "You're doing great!"}
-              {points >= 100 && points < 250 && "Amazing progress!"}
-              {points >= 250 && points < 500 && "You're a champion!"}
-              {points >= 500 && "Zero Hunger Hero! 🌟"}
+              {completedMissions === 0 && "Start your impact journey!"}
+              {completedMissions > 0 && completedMissions < 2 && "Great start! Keep going!"}
+              {completedMissions >= 2 && completedMissions < 4 && "You're making a difference!"}
+              {completedMissions >= 4 && completedMissions < totalMissions && "Almost there, champion!"}
+              {completedMissions === totalMissions && "All missions complete! 🌟"}
             </p>
           </div>
         </div>

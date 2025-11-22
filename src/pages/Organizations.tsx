@@ -5,10 +5,12 @@ import { useEffect } from "react";
 import CaviteMap from "@/components/CaviteMap";
 
 const Organizations = () => {
-  const { addPoints } = useGamification();
+  const { addImpact, completeMission } = useGamification();
 
   useEffect(() => {
-    addPoints(5, 'visited_organizations');
+    window.dispatchEvent(new CustomEvent('page-visit', { detail: { page: 'organizations' } }));
+    addImpact('peopleReached', 30, 'Discovering organizations fighting hunger');
+    completeMission('find_organizations');
   }, []);
 
   const organizations = [
@@ -129,7 +131,7 @@ const Organizations = () => {
                 key={index}
                 className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer"
                 onClick={() => {
-                  addPoints(3, 'view_organization');
+                  addImpact('peopleReached', 10, `Discovering: ${org.name}`);
                   if (org.website) {
                     window.open(org.website, '_blank');
                   }

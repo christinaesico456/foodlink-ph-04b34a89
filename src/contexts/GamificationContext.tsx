@@ -1,64 +1,93 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
-import { Trophy, Heart, Users, BookOpen, Award, Zap, Target, Star } from 'lucide-react';
+import { Users, BookOpen, Heart, Target, Flame } from 'lucide-react';
 
-interface Badge {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  unlocked: boolean;
-  requirement: number;
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
-}
-
-interface Achievement {
+interface Mission {
   id: string;
   title: string;
-  points: number;
-  icon: React.ReactNode;
+  description: string;
+  completed: boolean;
+  impact: string;
+}
+
+interface ImpactMetrics {
+  actionsCompleted: number;
+  peopleReached: number;
+  contentShared: number;
+  mealEquivalent: number;
 }
 
 interface GamificationContextType {
-  points: number;
-  level: number;
-  badges: Badge[];
+  missions: Mission[];
+  impactMetrics: ImpactMetrics;
   streak: number;
-  achievements: Achievement[];
-  addPoints: (amount: number, reason: string) => void;
-  checkBadgeUnlock: () => void;
-  showAchievement: (title: string, points: number, icon: React.ReactNode) => void;
+  completeMission: (missionId: string) => void;
+  addImpact: (type: keyof ImpactMetrics, amount: number, message?: string) => void;
+  showImpactNotification: (message: string, icon: React.ReactNode) => void;
 }
 
 const GamificationContext = createContext<GamificationContextType | undefined>(undefined);
 
 export const GamificationProvider = ({ children }: { children: ReactNode }) => {
-  const [points, setPoints] = useState(0);
-  const [level, setLevel] = useState(1);
-  const [streak, setStreak] = useState(0);
-  const [badges, setBadges] = useState<Badge[]>([
-    { id: 'first_steps', name: '🌱 First Steps', description: 'Start your journey', icon: '🌱', unlocked: false, requirement: 10, rarity: 'common' },
-    { id: 'explorer', name: '🗺️ Explorer', description: 'Visit all pages', icon: '🗺️', unlocked: false, requirement: 50, rarity: 'common' },
-    { id: 'advocate', name: '📢 Advocate', description: 'Engage with content', icon: '📢', unlocked: false, requirement: 100, rarity: 'rare' },
-    { id: 'champion', name: '🏆 Champion', description: 'Master level reached', icon: '🏆', unlocked: false, requirement: 250, rarity: 'epic' },
-    { id: 'hero', name: '⭐ Zero Hunger Hero', description: 'Ultimate achievement', icon: '⭐', unlocked: false, requirement: 500, rarity: 'legendary' },
-    { id: 'weekly_warrior', name: '🔥 Weekly Warrior', description: '7-day streak', icon: '🔥', unlocked: false, requirement: 7, rarity: 'rare' },
-    { id: 'volunteer', name: '🤝 Volunteer Spirit', description: 'Check volunteering options', icon: '🤝', unlocked: false, requirement: 30, rarity: 'common' },
-    { id: 'informed', name: '📚 Well Informed', description: 'Read all updates', icon: '📚', unlocked: false, requirement: 75, rarity: 'rare' },
+  const [missions, setMissions] = useState<Mission[]>([
+    { 
+      id: 'explore_site', 
+      title: 'Explore FoodLink PH', 
+      description: 'Visit all pages to learn about Zero Hunger',
+      completed: false,
+      impact: '+50 people reached'
+    },
+    { 
+      id: 'learn_facts', 
+      title: 'Learn the Facts', 
+      description: 'Read about hunger statistics in Cavite',
+      completed: false,
+      impact: '+25 people reached'
+    },
+    { 
+      id: 'find_organizations', 
+      title: 'Discover Organizations', 
+      description: 'Explore local groups fighting hunger',
+      completed: false,
+      impact: '+30 people reached'
+    },
+    { 
+      id: 'volunteer_interest', 
+      title: 'Express Interest', 
+      description: 'Fill out the volunteer form',
+      completed: false,
+      impact: '+100 people reached'
+    },
+    { 
+      id: 'share_mission', 
+      title: 'Spread Awareness', 
+      description: 'Share FoodLink PH with others',
+      completed: false,
+      impact: '+200 people reached'
+    },
   ]);
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
+
+  const [impactMetrics, setImpactMetrics] = useState<ImpactMetrics>({
+    actionsCompleted: 0,
+    peopleReached: 0,
+    contentShared: 0,
+    mealEquivalent: 0,
+  });
+
+  const [streak, setStreak] = useState(0);
+  const [visitedPages, setVisitedPages] = useState<Set<string>>(new Set());
 
   // Load from localStorage
   useEffect(() => {
-    const savedPoints = localStorage.getItem('gamification_points');
-    const savedLevel = localStorage.getItem('gamification_level');
-    const savedBadges = localStorage.getItem('gamification_badges');
-    const savedStreak = localStorage.getItem('gamification_streak');
-    const savedLastVisit = localStorage.getItem('gamification_last_visit');
+    const savedMissions = localStorage.getItem('impact_missions');
+    const savedMetrics = localStorage.getItem('impact_metrics');
+    const savedStreak = localStorage.getItem('impact_streak');
+    const savedLastVisit = localStorage.getItem('impact_last_visit');
+    const savedVisitedPages = localStorage.getItem('visited_pages');
 
-    if (savedPoints) setPoints(parseInt(savedPoints));
-    if (savedLevel) setLevel(parseInt(savedLevel));
-    if (savedBadges) setBadges(JSON.parse(savedBadges));
+    if (savedMissions) setMissions(JSON.parse(savedMissions));
+    if (savedMetrics) setImpactMetrics(JSON.parse(savedMetrics));
+    if (savedVisitedPages) setVisitedPages(new Set(JSON.parse(savedVisitedPages)));
     
     // Check streak
     const today = new Date().toDateString();
@@ -68,55 +97,37 @@ export const GamificationProvider = ({ children }: { children: ReactNode }) => {
       yesterday.setDate(yesterday.getDate() - 1);
       
       if (lastVisit.toDateString() === yesterday.toDateString()) {
-        // Continue streak
         const currentStreak = savedStreak ? parseInt(savedStreak) + 1 : 1;
         setStreak(currentStreak);
-        localStorage.setItem('gamification_streak', currentStreak.toString());
+        localStorage.setItem('impact_streak', currentStreak.toString());
       } else if (lastVisit.toDateString() !== today) {
-        // Reset streak
         setStreak(1);
-        localStorage.setItem('gamification_streak', '1');
+        localStorage.setItem('impact_streak', '1');
       } else {
         setStreak(savedStreak ? parseInt(savedStreak) : 0);
       }
     } else {
       setStreak(1);
-      localStorage.setItem('gamification_streak', '1');
+      localStorage.setItem('impact_streak', '1');
     }
     
-    localStorage.setItem('gamification_last_visit', today);
+    localStorage.setItem('impact_last_visit', today);
   }, []);
 
   // Save to localStorage
   useEffect(() => {
-    localStorage.setItem('gamification_points', points.toString());
-    localStorage.setItem('gamification_level', level.toString());
-    localStorage.setItem('gamification_badges', JSON.stringify(badges));
-  }, [points, level, badges]);
+    localStorage.setItem('impact_missions', JSON.stringify(missions));
+    localStorage.setItem('impact_metrics', JSON.stringify(impactMetrics));
+    localStorage.setItem('visited_pages', JSON.stringify(Array.from(visitedPages)));
+  }, [missions, impactMetrics, visitedPages]);
 
-  // Calculate level
-  useEffect(() => {
-    const newLevel = Math.floor(points / 50) + 1;
-    if (newLevel > level) {
-      setLevel(newLevel);
-      showLevelUpCelebration(newLevel);
-    }
-  }, [points]);
-
-  const showLevelUpCelebration = (newLevel: number) => {
-    toast.success(`🎉 Level Up! You're now Level ${newLevel}!`, {
-      description: `Keep going! Next level at ${newLevel * 50} points.`,
-      duration: 5000,
-    });
-  };
-
-  const showAchievement = (title: string, points: number, icon: React.ReactNode) => {
+  const showImpactNotification = (message: string, icon: React.ReactNode) => {
     toast.success(
       <div className="flex items-center gap-3">
         <div className="text-2xl">{icon}</div>
         <div>
-          <div className="font-bold">{title}</div>
-          <div className="text-sm text-muted-foreground">+{points} points earned!</div>
+          <div className="font-bold">Impact Made!</div>
+          <div className="text-sm text-muted-foreground">{message}</div>
         </div>
       </div>,
       {
@@ -125,76 +136,99 @@ export const GamificationProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
-  const addPoints = (amount: number, reason: string) => {
-    setPoints(prev => prev + amount);
-    
-    // Show different achievement types based on reason
-    const achievementMap: Record<string, { title: string; icon: React.ReactNode }> = {
-      'visited_home': { title: 'Welcome Home!', icon: <Star className="h-5 w-5" /> },
-      'visited_about': { title: 'Learning More!', icon: <BookOpen className="h-5 w-5" /> },
-      'visited_organizations': { title: 'Exploring Partners!', icon: <Users className="h-5 w-5" /> },
-      'visited_get_involved': { title: 'Taking Action!', icon: <Heart className="h-5 w-5" /> },
-      'visited_updates': { title: 'Staying Informed!', icon: <Zap className="h-5 w-5" /> },
-      'default': { title: 'Great Job!', icon: <Trophy className="h-5 w-5" /> }
-    };
-
-    const achievement = achievementMap[reason] || achievementMap['default'];
-    
-    // Only show achievement for meaningful actions (5+ points)
-    if (amount >= 5) {
-      setTimeout(() => showAchievement(achievement.title, amount, achievement.icon), 300);
-    }
-    
-    checkBadgeUnlock();
-  };
-
-  const checkBadgeUnlock = () => {
-    setBadges(prev => {
-      const updated = prev.map(badge => {
-        if (!badge.unlocked) {
-          const requirement = badge.id === 'weekly_warrior' ? streak : points;
-          if (requirement >= badge.requirement) {
-            // Show unlock toast
-            const rarityColors = {
-              common: '🟢',
-              rare: '🔵', 
-              epic: '🟣',
-              legendary: '🟡'
-            };
-            
+  const completeMission = (missionId: string) => {
+    setMissions(prev => {
+      const updated = prev.map(mission => {
+        if (mission.id === missionId && !mission.completed) {
+          // Show completion notification
+          setTimeout(() => {
             toast.success(
               <div className="flex items-center gap-3">
-                <div className="text-3xl">{badge.icon}</div>
+                <div className="text-3xl">🎯</div>
                 <div>
-                  <div className="font-bold">{rarityColors[badge.rarity]} Badge Unlocked!</div>
-                  <div className="text-sm">{badge.name}</div>
-                  <div className="text-xs text-muted-foreground">{badge.description}</div>
+                  <div className="font-bold">Mission Completed!</div>
+                  <div className="text-sm">{mission.title}</div>
+                  <div className="text-xs text-muted-foreground">{mission.impact}</div>
                 </div>
               </div>,
               {
-                duration: 6000,
+                duration: 5000,
               }
             );
-            
-            return { ...badge, unlocked: true };
+          }, 300);
+          
+          // Extract number from impact string
+          const impactMatch = mission.impact.match(/\+(\d+)/);
+          if (impactMatch) {
+            const impactValue = parseInt(impactMatch[1]);
+            setImpactMetrics(prev => ({
+              ...prev,
+              actionsCompleted: prev.actionsCompleted + 1,
+              peopleReached: prev.peopleReached + impactValue,
+              mealEquivalent: prev.mealEquivalent + Math.floor(impactValue / 10),
+            }));
           }
+          
+          return { ...mission, completed: true };
         }
-        return badge;
+        return mission;
       });
       return updated;
     });
   };
 
+  const addImpact = (type: keyof ImpactMetrics, amount: number, message?: string) => {
+    setImpactMetrics(prev => ({
+      ...prev,
+      [type]: prev[type] + amount,
+    }));
+
+    const impactMessages: Record<keyof ImpactMetrics, { text: string; icon: React.ReactNode }> = {
+      actionsCompleted: { text: message || `+${amount} action completed!`, icon: <Target className="h-5 w-5" /> },
+      peopleReached: { text: message || `+${amount} people reached!`, icon: <Users className="h-5 w-5" /> },
+      contentShared: { text: message || `Content shared!`, icon: <Heart className="h-5 w-5" /> },
+      mealEquivalent: { text: message || `+${amount} meal equivalent!`, icon: <Heart className="h-5 w-5" /> },
+    };
+
+    if (amount > 0 && message) {
+      setTimeout(() => showImpactNotification(message, impactMessages[type].icon), 300);
+    }
+  };
+
+  // Track page visits for mission completion
+  useEffect(() => {
+    const handlePageVisit = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const pageName = customEvent.detail.page;
+      
+      setVisitedPages(prev => {
+        const updated = new Set(prev);
+        updated.add(pageName);
+        
+        // Check if all main pages have been visited
+        if (updated.size >= 5 && !missions.find(m => m.id === 'explore_site')?.completed) {
+          completeMission('explore_site');
+        }
+        
+        return updated;
+      });
+    };
+
+    window.addEventListener('page-visit', handlePageVisit);
+
+    return () => {
+      window.removeEventListener('page-visit', handlePageVisit);
+    };
+  }, [missions]);
+
   return (
     <GamificationContext.Provider value={{ 
-      points, 
-      level, 
-      badges, 
+      missions,
+      impactMetrics,
       streak,
-      achievements,
-      addPoints, 
-      checkBadgeUnlock,
-      showAchievement
+      completeMission,
+      addImpact,
+      showImpactNotification
     }}>
       {children}
     </GamificationContext.Provider>

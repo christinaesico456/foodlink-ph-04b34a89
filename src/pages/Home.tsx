@@ -1,216 +1,219 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Users, Heart, TrendingUp, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, Heart, Users, Target, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useGamification } from "@/contexts/GamificationContext";
 import { useEffect } from "react";
+import feedingImg from "@/assets/feeding-program.jpg";
+import childrenImg from "@/assets/children-feeding.jpg";
 
 const Home = () => {
-  const { addPoints } = useGamification();
+  const { addImpact } = useGamification();
 
   useEffect(() => {
-    addPoints(5, 'visited_home');
+    // Dispatch page visit event
+    window.dispatchEvent(new CustomEvent('page-visit', { detail: { page: 'home' } }));
+    addImpact('peopleReached', 10, 'Exploring Zero Hunger mission');
   }, []);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Futuristic Hero Section */}
+      {/* Hero Section */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
         {/* Animated Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/10 to-secondary/5">
-          <div className="absolute inset-0" style={{ backgroundImage: 'var(--gradient-glow)' }}></div>
-          <div className="absolute top-0 left-0 w-full h-full opacity-20">
-            {[...Array(20)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute rounded-full bg-primary/10"
-                style={{
-                  width: `${Math.random() * 300 + 50}px`,
-                  height: `${Math.random() * 300 + 50}px`,
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  animation: `bounce-slow ${Math.random() * 10 + 5}s ease-in-out infinite`,
-                  animationDelay: `${Math.random() * 5}s`,
-                }}
-              />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(218,163,37,0.1),transparent_50%)]"></div>
+        
+        <div className="container mx-auto px-4 relative z-10 grid lg:grid-cols-2 gap-12 items-center pt-20">
+          {/* Left Content */}
+          <div className="space-y-8 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/30">
+              <Heart className="h-4 w-4 text-primary" />
+              <span className="text-sm font-bold text-primary">SDG 2: Zero Hunger</span>
+            </div>
+            
+            <h1 className="text-6xl md:text-8xl font-black leading-tight text-foreground">
+              Fighting
+              <br />
+              <span className="text-primary">Hunger</span>
+              <br />
+              in Cavite
+            </h1>
+            
+            <p className="text-xl text-muted-foreground leading-relaxed max-w-xl">
+              Join the movement to end hunger in the Philippines. Together, we can ensure 
+              every Filipino has access to nutritious food and a better future.
+            </p>
+            
+            <div className="flex flex-wrap gap-4">
+              <Link to="/get-involved">
+                <Button 
+                  size="lg" 
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold group"
+                >
+                  Get Involved
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              
+              <Link to="/about">
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="border-primary/50 hover:bg-primary/10 font-bold"
+                >
+                  Learn More
+                </Button>
+              </Link>
+            </div>
+          </div>
+          
+          {/* Right Visual */}
+          <div className="relative lg:h-[600px] animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl blur-3xl"></div>
+            <img 
+              src={feedingImg}
+              alt="Community feeding program in Cavite"
+              className="relative z-10 w-full h-full object-cover rounded-3xl shadow-2xl border-4 border-primary/20"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-20 bg-gradient-to-r from-primary via-accent to-secondary relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZS13aWR0aD0iMiIvPjwvZz48L3N2Zz4=')] opacity-10"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid md:grid-cols-4 gap-8">
+            {[
+              { value: "2.3M", label: "Filipinos Face Hunger", icon: Users },
+              { value: "33.4%", label: "Child Malnutrition Rate", icon: Heart },
+              { value: "450+", label: "Active Programs in PH", icon: Target },
+              { value: "50K+", label: "Served in Cavite Monthly", icon: TrendingUp }
+            ].map((stat, i) => (
+              <Card 
+                key={i} 
+                className="text-center p-6 bg-primary-foreground/10 backdrop-blur-sm border-primary-foreground/20 hover:scale-105 transition-transform duration-300"
+              >
+                <stat.icon className="h-10 w-10 mx-auto mb-4 text-primary-foreground" />
+                <div className="text-5xl font-black text-primary-foreground mb-2">
+                  {stat.value}
+                </div>
+                <div className="text-sm text-primary-foreground/90">
+                  {stat.label}
+                </div>
+              </Card>
             ))}
           </div>
         </div>
+      </section>
+
+      {/* Mission Section */}
+      <section className="py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-muted/30 to-background"></div>
         
         <div className="container mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left: Content */}
-            <div className="space-y-8 animate-fade-in-up">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/30">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-sm font-bold text-primary">SDG 2: Zero Hunger</span>
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Image */}
+            <div className="relative h-[500px] animate-fade-in">
+              <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-earth/20 rounded-3xl blur-3xl"></div>
+              <img 
+                src={childrenImg}
+                alt="Children receiving meals"
+                className="relative z-10 w-full h-full object-cover rounded-3xl shadow-2xl border-4 border-secondary/20"
+              />
+            </div>
+            
+            {/* Content */}
+            <div className="space-y-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 backdrop-blur-sm rounded-full border border-accent/30">
+                <Target className="h-4 w-4 text-accent" />
+                <span className="text-sm font-bold text-accent">Our Mission</span>
               </div>
               
-              <h1 className="text-6xl md:text-8xl font-black leading-none">
-                <span className="block text-foreground">Fight</span>
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-secondary animate-pulse-glow">
-                  Hunger
-                </span>
-                <span className="block text-foreground">Together</span>
-              </h1>
+              <h2 className="text-5xl md:text-6xl font-black text-foreground">
+                Zero Hunger
+                <br />
+                <span className="text-secondary">Starts Here</span>
+              </h2>
               
-              <p className="text-xl text-muted-foreground leading-relaxed max-w-lg">
-                FoodLink PH connects communities with NGOs and local programs. 
-                <span className="text-primary font-semibold"> Every action creates impact.</span>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                FoodLink PH connects communities, organizations, and individuals in the fight 
+                against hunger across Cavite Province. We believe that no one should go to bed 
+                hungry, and together, we're making that vision a reality.
               </p>
               
-              <div className="flex flex-wrap gap-4">
-                <Link to="/get-involved">
-                  <Button 
-                    size="lg" 
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 group shadow-xl hover:shadow-2xl transition-all"
-                    onClick={() => addPoints(5, 'cta_click')}
-                  >
-                    <Zap className="mr-2 h-5 w-5" />
-                    Get Involved
-                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
-                <Link to="/about">
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="border-2 border-primary/50 text-foreground hover:bg-primary/10 font-bold px-8 backdrop-blur-sm"
-                    onClick={() => addPoints(3, 'learn_more')}
-                  >
-                    Discover More
-                  </Button>
-                </Link>
+              <div className="space-y-4">
+                {[
+                  "Support 50,000+ Caviteños monthly through feeding programs",
+                  "Partner with 25+ local organizations and LGUs",
+                  "Advocate for sustainable food security solutions",
+                  "Empower communities through education and resources"
+                ].map((point, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center mt-1">
+                      <div className="w-2 h-2 rounded-full bg-primary"></div>
+                    </div>
+                    <p className="text-muted-foreground">{point}</p>
+                  </div>
+                ))}
               </div>
-            </div>
-
-            {/* Right: Interactive Stats */}
-            <div className="relative animate-fade-in" style={{ animationDelay: '200ms' }}>
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl blur-3xl"></div>
-              <Card className="relative bg-card/40 backdrop-blur-xl border-primary/20 p-8 shadow-2xl">
-                <div className="space-y-6">
-                  <h3 className="text-2xl font-bold text-foreground mb-4">Real-Time Impact</h3>
-                  
-                  <div className="space-y-4">
-                    {[
-                      { value: '2.8M', label: 'Filipinos Fed Monthly', color: 'text-primary' },
-                      { value: '450+', label: 'Active Programs', color: 'text-accent' },
-                      { value: '15K', label: 'Volunteers', color: 'text-secondary' },
-                    ].map((stat, i) => (
-                      <div 
-                        key={i}
-                        className="flex items-center justify-between p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all cursor-pointer group"
-                        onClick={() => addPoints(2, 'stat_click')}
-                      >
-                        <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-                          {stat.label}
-                        </span>
-                        <span className={`text-3xl font-black ${stat.color}`}>
-                          {stat.value}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </Card>
+              
+              <Link to="/about">
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="border-secondary/50 hover:bg-secondary/10 font-bold group mt-4"
+                >
+                  Read Our Story
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Mission Section - Diagonal Layout */}
-      <section className="relative py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 via-background to-accent/10 -skew-y-3 transform origin-top-left"></div>
+      {/* CTA Section */}
+      <section className="py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/10 to-background"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(218,163,37,0.15),transparent_50%)]"></div>
         
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-2xl mb-20 animate-fade-in">
-            <h2 className="text-5xl font-black mb-6 text-foreground">
-              Our <span className="text-primary">Mission</span>
+        <div className="container mx-auto px-4 relative z-10 text-center">
+          <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
+            <h2 className="text-5xl md:text-7xl font-black text-foreground">
+              Be Part of the
+              <br />
+              <span className="text-primary">Solution</span>
             </h2>
+            
             <p className="text-xl text-muted-foreground leading-relaxed">
-              Raising awareness and connecting communities with local NGOs and LGUs 
-              running feeding programs across the Philippines.
+              Every action counts. Whether you volunteer, donate, or spread awareness—
+              you're helping create a hunger-free Cavite.
             </p>
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-6">
-            {[
-              {
-                icon: Users,
-                title: "Connect Communities",
-                description: "Link those in need with organizations and volunteers ready to help",
-                color: "primary",
-                gradient: "from-primary/20 to-primary/5"
-              },
-              {
-                icon: Heart,
-                title: "Spread Awareness",
-                description: "Educate people about hunger issues and sustainable food practices",
-                color: "accent",
-                gradient: "from-accent/20 to-accent/5"
-              },
-              {
-                icon: TrendingUp,
-                title: "Drive Action",
-                description: "Encourage volunteering, donations, and advocacy for SDG 2",
-                color: "secondary",
-                gradient: "from-secondary/20 to-secondary/5"
-              }
-            ].map((item, index) => (
-              <Card 
-                key={index}
-                className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 cursor-pointer"
-                style={{ animationDelay: `${index * 150}ms` }}
-                onClick={() => addPoints(3, 'mission_card')}
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
-                
-                <div className="relative z-10">
-                  <div className={`inline-flex p-4 bg-${item.color}/10 rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                    <item.icon className={`h-10 w-10 text-${item.color}`} />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-4 text-foreground group-hover:text-primary transition-colors">
-                    {item.title}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed">{item.description}</p>
-                </div>
-
-                <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-primary/10 to-transparent rounded-tl-full transform translate-x-16 translate-y-16 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-500"></div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section - Split Design */}
-      <section className="relative min-h-[60vh] flex items-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-accent to-secondary opacity-90"></div>
-        <div className="absolute inset-0 backdrop-blur-sm"></div>
-        
-        {/* Geometric Shapes */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-earth/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/20 rounded-full blur-3xl"></div>
-
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <Sparkles className="h-16 w-16 text-background mx-auto mb-6 animate-bounce-slow" />
-            <h2 className="text-5xl md:text-6xl font-black mb-6 text-primary-foreground">
-              Ready to Make an Impact?
-            </h2>
-            <p className="text-2xl mb-12 text-primary-foreground/90 max-w-2xl mx-auto leading-relaxed">
-              Join thousands making a difference. Every action creates ripples of change.
-            </p>
-            <Link to="/get-involved">
-              <Button 
-                size="lg" 
-                className="bg-background text-primary hover:bg-background/90 hover:scale-110 font-bold px-12 py-6 text-lg shadow-2xl transition-all duration-300"
-                onClick={() => addPoints(10, 'final_cta')}
-              >
-                <Zap className="mr-2 h-6 w-6" />
-                Start Your Journey
-                <ArrowRight className="ml-2 h-6 w-6" />
-              </Button>
-            </Link>
+            
+            <div className="flex flex-wrap gap-4 justify-center pt-4">
+              <Link to="/get-involved">
+                <Button 
+                  size="lg" 
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 group"
+                >
+                  Take Action Now
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              
+              <Link to="/organizations">
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="border-primary/50 hover:bg-primary/10 font-bold px-8"
+                >
+                  Explore Organizations
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
