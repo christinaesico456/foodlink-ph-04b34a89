@@ -5,10 +5,12 @@ import { useEffect } from "react";
 import agricultureImg from "@/assets/agriculture-cavite.jpg";
 
 const About = () => {
-  const { addPoints } = useGamification();
+  const { addImpact, completeMission } = useGamification();
 
   useEffect(() => {
-    addPoints(5, 'visited_about');
+    window.dispatchEvent(new CustomEvent('page-visit', { detail: { page: 'about' } }));
+    addImpact('peopleReached', 25, 'Learning about hunger in Philippines');
+    completeMission('learn_facts');
   }, []);
 
   const hungerFacts = [
@@ -100,7 +102,7 @@ const About = () => {
               <Card
                 key={index}
                 className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 cursor-pointer"
-                onClick={() => addPoints(3, 'read_fact')}
+                onClick={() => addImpact('peopleReached', 5, 'Learning about hunger facts')}
               >
                 <div className={`absolute inset-0 bg-gradient-to-br from-${fact.color}/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
                 
@@ -149,7 +151,7 @@ const About = () => {
               <Card
                 key={index}
                 className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 p-8 hover:shadow-2xl transition-all duration-500 cursor-pointer"
-                onClick={() => addPoints(3, 'read_solution')}
+                onClick={() => addImpact('peopleReached', 5, 'Exploring solutions to hunger')}
               >
                 <div className={`absolute inset-0 bg-gradient-to-br ${solution.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
                 

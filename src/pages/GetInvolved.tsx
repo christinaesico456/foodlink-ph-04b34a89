@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import volunteersImg from "@/assets/volunteers.jpg";
 
 const GetInvolved = () => {
-  const { addPoints } = useGamification();
+  const { addImpact, completeMission } = useGamification();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
@@ -22,12 +22,15 @@ const GetInvolved = () => {
   });
 
   useEffect(() => {
-    addPoints(5, 'visited_get_involved');
+    window.dispatchEvent(new CustomEvent('page-visit', { detail: { page: 'get-involved' } }));
+    addImpact('peopleReached', 20, 'Taking action against hunger');
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addPoints(20, 'submitted_volunteer_form');
+    addImpact('actionsCompleted', 1);
+    addImpact('peopleReached', 100, 'Volunteering to help fight hunger!');
+    completeMission('volunteer_interest');
     toast({
       title: "Thank you for your interest!",
       description: "We'll get back to you soon about volunteer opportunities.",
@@ -46,34 +49,54 @@ const GetInvolved = () => {
     {
       icon: HandHeart,
       title: "Volunteer",
-      description: "Join feeding programs, food drives, and community events in Cavite",
+      description: "Join feeding programs in Cavite municipalities. Help pack meals, serve at community kitchens, or organize food drives in your barangay.",
+      details: [
+        "Weekly feeding programs in Bacoor, Imus, and Dasmariñas",
+        "Monthly food distribution drives across 23 municipalities",
+        "Community kitchen assistance (2-4 hours/week)",
+        "Food sorting and packaging at local warehouses"
+      ],
       action: "Sign Up to Volunteer",
-      color: "primary",
-      points: 10
+      color: "primary"
     },
     {
       icon: DollarSign,
       title: "Donate",
-      description: "Support local feeding programs and food banks serving Cavite communities",
+      description: "Support local feeding programs serving 50,000+ Caviteños monthly. Every ₱50 provides a nutritious meal for a child in need.",
+      details: [
+        "₱50 = 1 meal for a malnourished child",
+        "₱500 = Weekly groceries for a family of 4",
+        "₱2,000 = Monthly food support for 1 household",
+        "₱10,000 = Community feeding program for 200 people"
+      ],
       action: "Learn About Donations",
-      color: "secondary",
-      points: 10
+      color: "secondary"
     },
     {
       icon: Share2,
       title: "Spread Awareness",
-      description: "Share SDG 2 content and help educate others about hunger issues",
+      description: "Amplify the message. Share stories, statistics, and solutions about hunger in the Philippines to educate your community and social networks.",
+      details: [
+        "Share SDG 2 infographics on Facebook, Twitter, Instagram",
+        "Post stories of local heroes fighting hunger in Cavite",
+        "Tag @FoodLinkPH and use #ZeroHungerCavite",
+        "Organize awareness campaigns in schools and workplaces"
+      ],
       action: "Share on Social Media",
-      color: "accent",
-      points: 5
+      color: "accent"
     },
     {
       icon: Megaphone,
       title: "Advocate",
-      description: "Contact local officials and support policies that address food security",
+      description: "Contact local officials and support policies that improve food security, nutrition programs, and agricultural support in Cavite Province.",
+      details: [
+        "Sign petitions for expanded school feeding programs",
+        "Email provincial representatives about food security",
+        "Attend town hall meetings on hunger issues",
+        "Support local farmers and sustainable agriculture policies"
+      ],
       action: "Take Action",
-      color: "earth",
-      points: 10
+      color: "earth"
     }
   ];
 
@@ -116,38 +139,48 @@ const GetInvolved = () => {
             Ways to <span className="text-accent">Make an Impact</span>
           </h2>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mb-20">
+          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-20">
             {actionCards.map((card, index) => (
               <Card
                 key={index}
-                className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 p-6 hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 cursor-pointer"
+                className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 p-8 hover:shadow-2xl transition-all duration-500 hover:border-primary/40"
                 onClick={() => {
-                  addPoints(card.points, `action_${card.title.toLowerCase()}`);
-                  toast({
-                    title: `+${card.points} points!`,
-                    description: `You explored: ${card.title}`,
-                  });
+                  addImpact('peopleReached', 10, `Exploring: ${card.title}`);
+                  addImpact('actionsCompleted', 1);
                 }}
               >
                 <div className={`absolute inset-0 bg-gradient-to-br from-${card.color}/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
                 
-                <div className="relative z-10 text-center">
-                  <div className={`inline-flex p-4 bg-${card.color}/10 rounded-2xl mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                    <card.icon className={`h-10 w-10 text-${card.color}`} />
+                <div className="relative z-10">
+                  <div className="flex items-start gap-4 mb-6">
+                    <div className={`flex-shrink-0 p-4 bg-${card.color}/10 rounded-2xl group-hover:scale-110 transition-transform duration-300`}>
+                      <card.icon className={`h-8 w-8 text-${card.color}`} />
+                    </div>
+                    
+                    <div className="flex-1">
+                      <h3 className="text-2xl font-bold mb-2 text-foreground group-hover:text-primary transition-colors">
+                        {card.title}
+                      </h3>
+                      
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {card.description}
+                      </p>
+                    </div>
                   </div>
                   
-                  <h3 className="text-xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors">
-                    {card.title}
-                  </h3>
-                  
-                  <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-                    {card.description}
-                  </p>
+                  <div className="space-y-3 mb-6">
+                    {card.details.map((detail, i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                        <p className="text-sm text-muted-foreground">{detail}</p>
+                      </div>
+                    ))}
+                  </div>
                   
                   <Button 
-                    size="sm" 
+                    size="lg" 
                     variant="outline" 
-                    className="w-full border-primary/50 hover:bg-primary/10"
+                    className="w-full border-primary/50 hover:bg-primary/10 hover:border-primary font-bold"
                   >
                     {card.action}
                   </Button>

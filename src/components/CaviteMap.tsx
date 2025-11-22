@@ -13,7 +13,7 @@ const CaviteMap = () => {
   const [mapboxToken, setMapboxToken] = useState<string>('');
   const [tokenInput, setTokenInput] = useState<string>('');
   const [showTokenInput, setShowTokenInput] = useState<boolean>(true);
-  const { addPoints } = useGamification();
+  const { addImpact } = useGamification();
 
   // Cavite municipalities and cities with coordinates
   const locations = [
@@ -33,7 +33,7 @@ const CaviteMap = () => {
     if (tokenInput.trim()) {
       setMapboxToken(tokenInput.trim());
       setShowTokenInput(false);
-      addPoints(10, 'map_interaction');
+      addImpact('peopleReached', 10, 'Exploring Cavite map');
     }
   };
 
@@ -109,7 +109,7 @@ const CaviteMap = () => {
         });
       });
 
-      addPoints(15, 'map_interaction');
+      addImpact('peopleReached', 15, 'Viewing feeding program locations');
 
     } catch (error) {
       console.error('Error initializing map:', error);
