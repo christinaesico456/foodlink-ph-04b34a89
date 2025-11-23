@@ -5,151 +5,163 @@ import confetti from 'canvas-confetti';
 interface Action {
   id: string;
   title: string;
-  description: string;
   impact: number;
   icon: string;
+  timestamp: number;
 }
 
-interface ImpactData {
-  totalImpact: number;
-  actionsToday: number;
-  livesImpacted: number;
-  dayStreak: number;
+interface JourneyData {
+  level: number;
+  currentXP: number;
+  totalXP: number;
+  actionsCompleted: number;
   lastVisitDate: string;
+  recentActions: Action[];
 }
 
 interface GamificationContextType {
-  impactData: ImpactData;
-  todaysActions: Action[];
+  journeyData: JourneyData;
   recordAction: (actionId: string, title: string, impact: number, icon: string) => void;
-  celebrateImpact: () => void;
+  celebrateLevel: () => void;
+  getLevelInfo: () => { title: string; nextTitle: string; progress: number; xpNeeded: number };
 }
 
 const GamificationContext = createContext<GamificationContextType | undefined>(undefined);
 
-const ACTIONS_CATALOG = {
-  page_visit: { base: 5, message: "Exploring hunger solutions" },
-  learn_fact: { base: 10, message: "Knowledge is power" },
-  view_org: { base: 15, message: "Connecting with changemakers" },
-  map_explore: { base: 20, message: "Discovering impact zones" },
-  form_interest: { base: 50, message: "Taking real action!" },
-  share_content: { base: 30, message: "Amplifying the cause" },
+const LEVELS = [
+  { level: 1, title: "Curious Observer", xpRequired: 0 },
+  { level: 2, title: "Engaged Learner", xpRequired: 50 },
+  { level: 3, title: "Active Supporter", xpRequired: 150 },
+  { level: 4, title: "Community Advocate", xpRequired: 300 },
+  { level: 5, title: "Change Maker", xpRequired: 500 },
+  { level: 6, title: "Impact Leader", xpRequired: 750 },
+  { level: 7, title: "Hope Champion", xpRequired: 1000 },
+];
+
+const MAX_RECENT_ACTIONS = 5;
+
+const getLevelFromXP = (xp: number) => {
+  for (let i = LEVELS.length - 1; i >= 0; i--) {
+    if (xp >= LEVELS[i].xpRequired) return i + 1;
+  }
+  return 1;
 };
 
 export const GamificationProvider = ({ children }: { children: ReactNode }) => {
-  const [impactData, setImpactData] = useState<ImpactData>({
-    totalImpact: 0,
-    actionsToday: 0,
-    livesImpacted: 0,
-    dayStreak: 0,
+  const [journeyData, setJourneyData] = useState<JourneyData>({
+    level: 1,
+    currentXP: 0,
+    totalXP: 0,
+    actionsCompleted: 0,
     lastVisitDate: new Date().toDateString(),
+    recentActions: [],
   });
-
-  const [todaysActions, setTodaysActions] = useState<Action[]>([]);
 
   // Load from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('impact_data');
-    const savedActions = localStorage.getItem('todays_actions');
-    const lastVisit = localStorage.getItem('last_visit_date');
-
+    const saved = localStorage.getItem('journey_data');
     if (saved) {
-      const data = JSON.parse(saved);
-      const today = new Date().toDateString();
-      
-      // Check streak
-      if (lastVisit) {
-        const lastDate = new Date(lastVisit);
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        if (lastDate.toDateString() === yesterday.toDateString()) {
-          // Continuing streak
-          data.dayStreak = (data.dayStreak || 0) + 1;
-        } else if (lastDate.toDateString() !== today) {
-          // Reset streak
-          data.dayStreak = 1;
-          data.actionsToday = 0;
-        }
-      }
-      
-      setImpactData(data);
+      setJourneyData(JSON.parse(saved));
     }
-
-    if (savedActions) {
-      const actions = JSON.parse(savedActions);
-      const today = new Date().toDateString();
-      if (lastVisit === today) {
-        setTodaysActions(actions);
-      } else {
-        setTodaysActions([]);
-      }
-    }
-
-    localStorage.setItem('last_visit_date', new Date().toDateString());
   }, []);
 
   // Save to localStorage
   useEffect(() => {
-    localStorage.setItem('impact_data', JSON.stringify(impactData));
-    localStorage.setItem('todays_actions', JSON.stringify(todaysActions));
-  }, [impactData, todaysActions]);
+    localStorage.setItem('journey_data', JSON.stringify(journeyData));
+  }, [journeyData]);
 
-  const celebrateImpact = () => {
+  const celebrateLevel = () => {
     confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
+      particleCount: 150,
+      spread: 80,
+      origin: { y: 0.5 },
       colors: ['#daa325', '#38761d', '#e38637'],
+      startVelocity: 45,
+      ticks: 100,
     });
   };
 
+  const getLevelInfo = () => {
+    const currentLevel = LEVELS.find(l => l.level === journeyData.level) || LEVELS[0];
+    const nextLevel = LEVELS.find(l => l.level === journeyData.level + 1);
+    
+    const currentLevelXP = currentLevel.xpRequired;
+    const nextLevelXP = nextLevel ? nextLevel.xpRequired : currentLevel.xpRequired;
+    const xpInCurrentLevel = journeyData.totalXP - currentLevelXP;
+    const xpNeededForNext = nextLevelXP - currentLevelXP;
+    const progress = nextLevel ? (xpInCurrentLevel / xpNeededForNext) * 100 : 100;
+
+    return {
+      title: currentLevel.title,
+      nextTitle: nextLevel ? nextLevel.title : "Max Level!",
+      progress: Math.min(progress, 100),
+      xpNeeded: nextLevel ? nextLevelXP - journeyData.totalXP : 0,
+    };
+  };
+
   const recordAction = (actionId: string, title: string, impact: number, icon: string) => {
-    // Check if action already recorded today
-    const alreadyRecorded = todaysActions.some(a => a.id === actionId);
+    // Check if action already recorded recently
+    const alreadyRecorded = journeyData.recentActions.some(a => a.id === actionId);
     if (alreadyRecorded) return;
 
     const newAction: Action = {
       id: actionId,
       title,
-      description: ACTIONS_CATALOG[actionId as keyof typeof ACTIONS_CATALOG]?.message || "Making a difference",
       impact,
       icon,
+      timestamp: Date.now(),
     };
 
-    setTodaysActions(prev => [...prev, newAction]);
+    const newTotalXP = journeyData.totalXP + impact;
+    const newLevel = getLevelFromXP(newTotalXP);
+    const leveledUp = newLevel > journeyData.level;
 
-    setImpactData(prev => ({
+    setJourneyData(prev => ({
       ...prev,
-      totalImpact: prev.totalImpact + impact,
-      actionsToday: prev.actionsToday + 1,
-      livesImpacted: prev.livesImpacted + Math.floor(impact / 10),
+      currentXP: prev.currentXP + impact,
+      totalXP: newTotalXP,
+      level: newLevel,
+      actionsCompleted: prev.actionsCompleted + 1,
+      recentActions: [newAction, ...prev.recentActions].slice(0, MAX_RECENT_ACTIONS),
     }));
 
-    // Show celebration for significant actions
-    if (impact >= 20) {
-      setTimeout(celebrateImpact, 300);
+    // Celebration for level up
+    if (leveledUp) {
+      setTimeout(() => {
+        celebrateLevel();
+        const levelInfo = LEVELS.find(l => l.level === newLevel);
+        toast.success(
+          <div className="flex items-center gap-3">
+            <div className="text-3xl">🎉</div>
+            <div>
+              <div className="font-bold">Level Up!</div>
+              <div className="text-sm text-muted-foreground">You're now a {levelInfo?.title}!</div>
+            </div>
+          </div>,
+          { duration: 4000 }
+        );
+      }, 300);
+    } else {
+      // Regular action toast
+      toast.success(
+        <div className="flex items-center gap-2">
+          <div className="text-2xl">{icon}</div>
+          <div>
+            <div className="font-semibold text-sm">{title}</div>
+            <div className="text-xs text-muted-foreground">+{impact} XP</div>
+          </div>
+        </div>,
+        { duration: 2500 }
+      );
     }
-
-    // Show toast notification
-    toast.success(
-      <div className="flex items-center gap-3">
-        <div className="text-3xl">{icon}</div>
-        <div>
-          <div className="font-bold">{title}</div>
-          <div className="text-sm text-muted-foreground">+{impact} impact points</div>
-        </div>
-      </div>,
-      { duration: 3000 }
-    );
   };
 
   return (
     <GamificationContext.Provider value={{ 
-      impactData,
-      todaysActions,
+      journeyData,
       recordAction,
-      celebrateImpact
+      celebrateLevel,
+      getLevelInfo,
     }}>
       {children}
     </GamificationContext.Provider>
