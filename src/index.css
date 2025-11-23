@@ -142,7 +142,8 @@ All colors MUST be HSL.
 
 @layer components {
   .glass-card {
-    @apply bg-card/60 backdrop-blur-xl border border-primary/20 shadow-soft;
+    @apply bg-card/60 backdrop-blur-xl border border-primary/20;
+    box-shadow: var(--shadow-soft);
   }
   
   .glow-effect {
