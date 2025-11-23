@@ -8,12 +8,10 @@ import feedingImg from "@/assets/feeding-program.jpg";
 import childrenImg from "@/assets/children-feeding.jpg";
 
 const Home = () => {
-  const { addImpact } = useGamification();
+  const { recordAction } = useGamification();
 
   useEffect(() => {
-    // Dispatch page visit event
-    window.dispatchEvent(new CustomEvent('page-visit', { detail: { page: 'home' } }));
-    addImpact('peopleReached', 10, 'Exploring Zero Hunger mission');
+    recordAction('page_visit', 'Visited Home', 5, '🏠');
   }, []);
 
   return (

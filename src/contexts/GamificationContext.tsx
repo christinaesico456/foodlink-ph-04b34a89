@@ -1,234 +1,155 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
-import { Users, BookOpen, Heart, Target, Flame } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
-interface Mission {
+interface Action {
   id: string;
   title: string;
   description: string;
-  completed: boolean;
-  impact: string;
+  impact: number;
+  icon: string;
 }
 
-interface ImpactMetrics {
-  actionsCompleted: number;
-  peopleReached: number;
-  contentShared: number;
-  mealEquivalent: number;
+interface ImpactData {
+  totalImpact: number;
+  actionsToday: number;
+  livesImpacted: number;
+  dayStreak: number;
+  lastVisitDate: string;
 }
 
 interface GamificationContextType {
-  missions: Mission[];
-  impactMetrics: ImpactMetrics;
-  streak: number;
-  completeMission: (missionId: string) => void;
-  addImpact: (type: keyof ImpactMetrics, amount: number, message?: string) => void;
-  showImpactNotification: (message: string, icon: React.ReactNode) => void;
+  impactData: ImpactData;
+  todaysActions: Action[];
+  recordAction: (actionId: string, title: string, impact: number, icon: string) => void;
+  celebrateImpact: () => void;
 }
 
 const GamificationContext = createContext<GamificationContextType | undefined>(undefined);
 
-export const GamificationProvider = ({ children }: { children: ReactNode }) => {
-  const [missions, setMissions] = useState<Mission[]>([
-    { 
-      id: 'explore_site', 
-      title: 'Explore FoodLink PH', 
-      description: 'Visit all pages to learn about Zero Hunger',
-      completed: false,
-      impact: '+50 people reached'
-    },
-    { 
-      id: 'learn_facts', 
-      title: 'Learn the Facts', 
-      description: 'Read about hunger statistics in Cavite',
-      completed: false,
-      impact: '+25 people reached'
-    },
-    { 
-      id: 'find_organizations', 
-      title: 'Discover Organizations', 
-      description: 'Explore local groups fighting hunger',
-      completed: false,
-      impact: '+30 people reached'
-    },
-    { 
-      id: 'volunteer_interest', 
-      title: 'Express Interest', 
-      description: 'Fill out the volunteer form',
-      completed: false,
-      impact: '+100 people reached'
-    },
-    { 
-      id: 'share_mission', 
-      title: 'Spread Awareness', 
-      description: 'Share FoodLink PH with others',
-      completed: false,
-      impact: '+200 people reached'
-    },
-  ]);
+const ACTIONS_CATALOG = {
+  page_visit: { base: 5, message: "Exploring hunger solutions" },
+  learn_fact: { base: 10, message: "Knowledge is power" },
+  view_org: { base: 15, message: "Connecting with changemakers" },
+  map_explore: { base: 20, message: "Discovering impact zones" },
+  form_interest: { base: 50, message: "Taking real action!" },
+  share_content: { base: 30, message: "Amplifying the cause" },
+};
 
-  const [impactMetrics, setImpactMetrics] = useState<ImpactMetrics>({
-    actionsCompleted: 0,
-    peopleReached: 0,
-    contentShared: 0,
-    mealEquivalent: 0,
+export const GamificationProvider = ({ children }: { children: ReactNode }) => {
+  const [impactData, setImpactData] = useState<ImpactData>({
+    totalImpact: 0,
+    actionsToday: 0,
+    livesImpacted: 0,
+    dayStreak: 0,
+    lastVisitDate: new Date().toDateString(),
   });
 
-  const [streak, setStreak] = useState(0);
-  const [visitedPages, setVisitedPages] = useState<Set<string>>(new Set());
+  const [todaysActions, setTodaysActions] = useState<Action[]>([]);
 
   // Load from localStorage
   useEffect(() => {
-    const savedMissions = localStorage.getItem('impact_missions');
-    const savedMetrics = localStorage.getItem('impact_metrics');
-    const savedStreak = localStorage.getItem('impact_streak');
-    const savedLastVisit = localStorage.getItem('impact_last_visit');
-    const savedVisitedPages = localStorage.getItem('visited_pages');
+    const saved = localStorage.getItem('impact_data');
+    const savedActions = localStorage.getItem('todays_actions');
+    const lastVisit = localStorage.getItem('last_visit_date');
 
-    if (savedMissions) setMissions(JSON.parse(savedMissions));
-    if (savedMetrics) setImpactMetrics(JSON.parse(savedMetrics));
-    if (savedVisitedPages) setVisitedPages(new Set(JSON.parse(savedVisitedPages)));
-    
-    // Check streak
-    const today = new Date().toDateString();
-    if (savedLastVisit) {
-      const lastVisit = new Date(savedLastVisit);
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
+    if (saved) {
+      const data = JSON.parse(saved);
+      const today = new Date().toDateString();
       
-      if (lastVisit.toDateString() === yesterday.toDateString()) {
-        const currentStreak = savedStreak ? parseInt(savedStreak) + 1 : 1;
-        setStreak(currentStreak);
-        localStorage.setItem('impact_streak', currentStreak.toString());
-      } else if (lastVisit.toDateString() !== today) {
-        setStreak(1);
-        localStorage.setItem('impact_streak', '1');
-      } else {
-        setStreak(savedStreak ? parseInt(savedStreak) : 0);
+      // Check streak
+      if (lastVisit) {
+        const lastDate = new Date(lastVisit);
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        
+        if (lastDate.toDateString() === yesterday.toDateString()) {
+          // Continuing streak
+          data.dayStreak = (data.dayStreak || 0) + 1;
+        } else if (lastDate.toDateString() !== today) {
+          // Reset streak
+          data.dayStreak = 1;
+          data.actionsToday = 0;
+        }
       }
-    } else {
-      setStreak(1);
-      localStorage.setItem('impact_streak', '1');
+      
+      setImpactData(data);
     }
-    
-    localStorage.setItem('impact_last_visit', today);
+
+    if (savedActions) {
+      const actions = JSON.parse(savedActions);
+      const today = new Date().toDateString();
+      if (lastVisit === today) {
+        setTodaysActions(actions);
+      } else {
+        setTodaysActions([]);
+      }
+    }
+
+    localStorage.setItem('last_visit_date', new Date().toDateString());
   }, []);
 
   // Save to localStorage
   useEffect(() => {
-    localStorage.setItem('impact_missions', JSON.stringify(missions));
-    localStorage.setItem('impact_metrics', JSON.stringify(impactMetrics));
-    localStorage.setItem('visited_pages', JSON.stringify(Array.from(visitedPages)));
-  }, [missions, impactMetrics, visitedPages]);
+    localStorage.setItem('impact_data', JSON.stringify(impactData));
+    localStorage.setItem('todays_actions', JSON.stringify(todaysActions));
+  }, [impactData, todaysActions]);
 
-  const showImpactNotification = (message: string, icon: React.ReactNode) => {
-    toast.success(
-      <div className="flex items-center gap-3">
-        <div className="text-2xl">{icon}</div>
-        <div>
-          <div className="font-bold">Impact Made!</div>
-          <div className="text-sm text-muted-foreground">{message}</div>
-        </div>
-      </div>,
-      {
-        duration: 4000,
-      }
-    );
-  };
-
-  const completeMission = (missionId: string) => {
-    setMissions(prev => {
-      const updated = prev.map(mission => {
-        if (mission.id === missionId && !mission.completed) {
-          // Show completion notification
-          setTimeout(() => {
-            toast.success(
-              <div className="flex items-center gap-3">
-                <div className="text-3xl">🎯</div>
-                <div>
-                  <div className="font-bold">Mission Completed!</div>
-                  <div className="text-sm">{mission.title}</div>
-                  <div className="text-xs text-muted-foreground">{mission.impact}</div>
-                </div>
-              </div>,
-              {
-                duration: 5000,
-              }
-            );
-          }, 300);
-          
-          // Extract number from impact string
-          const impactMatch = mission.impact.match(/\+(\d+)/);
-          if (impactMatch) {
-            const impactValue = parseInt(impactMatch[1]);
-            setImpactMetrics(prev => ({
-              ...prev,
-              actionsCompleted: prev.actionsCompleted + 1,
-              peopleReached: prev.peopleReached + impactValue,
-              mealEquivalent: prev.mealEquivalent + Math.floor(impactValue / 10),
-            }));
-          }
-          
-          return { ...mission, completed: true };
-        }
-        return mission;
-      });
-      return updated;
+  const celebrateImpact = () => {
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#daa325', '#38761d', '#e38637'],
     });
   };
 
-  const addImpact = (type: keyof ImpactMetrics, amount: number, message?: string) => {
-    setImpactMetrics(prev => ({
+  const recordAction = (actionId: string, title: string, impact: number, icon: string) => {
+    // Check if action already recorded today
+    const alreadyRecorded = todaysActions.some(a => a.id === actionId);
+    if (alreadyRecorded) return;
+
+    const newAction: Action = {
+      id: actionId,
+      title,
+      description: ACTIONS_CATALOG[actionId as keyof typeof ACTIONS_CATALOG]?.message || "Making a difference",
+      impact,
+      icon,
+    };
+
+    setTodaysActions(prev => [...prev, newAction]);
+
+    setImpactData(prev => ({
       ...prev,
-      [type]: prev[type] + amount,
+      totalImpact: prev.totalImpact + impact,
+      actionsToday: prev.actionsToday + 1,
+      livesImpacted: prev.livesImpacted + Math.floor(impact / 10),
     }));
 
-    const impactMessages: Record<keyof ImpactMetrics, { text: string; icon: React.ReactNode }> = {
-      actionsCompleted: { text: message || `+${amount} action completed!`, icon: <Target className="h-5 w-5" /> },
-      peopleReached: { text: message || `+${amount} people reached!`, icon: <Users className="h-5 w-5" /> },
-      contentShared: { text: message || `Content shared!`, icon: <Heart className="h-5 w-5" /> },
-      mealEquivalent: { text: message || `+${amount} meal equivalent!`, icon: <Heart className="h-5 w-5" /> },
-    };
-
-    if (amount > 0 && message) {
-      setTimeout(() => showImpactNotification(message, impactMessages[type].icon), 300);
+    // Show celebration for significant actions
+    if (impact >= 20) {
+      setTimeout(celebrateImpact, 300);
     }
+
+    // Show toast notification
+    toast.success(
+      <div className="flex items-center gap-3">
+        <div className="text-3xl">{icon}</div>
+        <div>
+          <div className="font-bold">{title}</div>
+          <div className="text-sm text-muted-foreground">+{impact} impact points</div>
+        </div>
+      </div>,
+      { duration: 3000 }
+    );
   };
-
-  // Track page visits for mission completion
-  useEffect(() => {
-    const handlePageVisit = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      const pageName = customEvent.detail.page;
-      
-      setVisitedPages(prev => {
-        const updated = new Set(prev);
-        updated.add(pageName);
-        
-        // Check if all main pages have been visited
-        if (updated.size >= 5 && !missions.find(m => m.id === 'explore_site')?.completed) {
-          completeMission('explore_site');
-        }
-        
-        return updated;
-      });
-    };
-
-    window.addEventListener('page-visit', handlePageVisit);
-
-    return () => {
-      window.removeEventListener('page-visit', handlePageVisit);
-    };
-  }, [missions]);
 
   return (
     <GamificationContext.Provider value={{ 
-      missions,
-      impactMetrics,
-      streak,
-      completeMission,
-      addImpact,
-      showImpactNotification
+      impactData,
+      todaysActions,
+      recordAction,
+      celebrateImpact
     }}>
       {children}
     </GamificationContext.Provider>
