@@ -1,136 +1,112 @@
 import { useGamification } from '@/contexts/GamificationContext';
-import { Target, Users, Heart, Flame, TrendingUp, CheckCircle } from 'lucide-react';
+import { Flame, TrendingUp, Users, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card } from './ui/card';
 import { useState } from 'react';
 import { Button } from './ui/button';
-import { Progress } from './ui/progress';
 
 const GamificationBar = () => {
-  const { missions, impactMetrics, streak } = useGamification();
+  const { impactData, todaysActions } = useGamification();
   const [isExpanded, setIsExpanded] = useState(false);
-  const completedMissions = missions.filter(m => m.completed).length;
-  const totalMissions = missions.length;
-  const progressPercentage = (completedMissions / totalMissions) * 100;
 
   return (
-    <div className="fixed top-20 right-4 z-50 w-80 animate-fade-in">
-      <Card className="bg-card/95 backdrop-blur-xl border-primary/30 shadow-2xl overflow-hidden">
-        {/* Gradient Border Effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/20 to-secondary/20 opacity-50"></div>
+    <div className="fixed bottom-6 right-6 z-50 w-96 animate-fade-in">
+      <Card className="glass-card overflow-hidden border-2">
+        {/* Gradient accent line */}
+        <div className="h-1 bg-gradient-to-r from-primary via-accent to-secondary"></div>
         
-        <div className="relative p-4">
+        <div className="p-6">
           {/* Header */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-primary" />
-              <h3 className="text-sm font-bold text-foreground">Your Impact</h3>
-            </div>
-            
-            {/* Streak */}
-            {streak > 0 && (
-              <div className="flex items-center gap-1 px-2 py-1 bg-accent/20 rounded-full border border-accent/30">
-                <Flame className="h-4 w-4 text-accent" fill="currentColor" />
-                <span className="text-xs font-bold text-foreground">{streak} day{streak > 1 ? 's' : ''}</span>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Sparkles className="h-6 w-6 text-primary animate-pulse-glow" />
+                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full"></div>
               </div>
-            )}
-          </div>
-
-          {/* Impact Metrics Grid */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-primary/10 backdrop-blur-sm rounded-lg p-3 border border-primary/20">
-              <div className="flex items-center gap-2 mb-1">
-                <Users className="h-4 w-4 text-primary" />
-                <span className="text-xs text-muted-foreground">People Reached</span>
+              <div>
+                <h3 className="text-lg font-bold text-foreground">Your Ripple Effect</h3>
+                <p className="text-xs text-muted-foreground">Every action creates waves of change</p>
               </div>
-              <div className="text-2xl font-black text-foreground">{impactMetrics.peopleReached}</div>
-            </div>
-
-            <div className="bg-accent/10 backdrop-blur-sm rounded-lg p-3 border border-accent/20">
-              <div className="flex items-center gap-2 mb-1">
-                <Heart className="h-4 w-4 text-accent" />
-                <span className="text-xs text-muted-foreground">Actions</span>
-              </div>
-              <div className="text-2xl font-black text-foreground">{impactMetrics.actionsCompleted}</div>
-            </div>
-
-            <div className="bg-secondary/10 backdrop-blur-sm rounded-lg p-3 border border-secondary/20 col-span-2">
-              <div className="flex items-center gap-2 mb-1">
-                <TrendingUp className="h-4 w-4 text-secondary" />
-                <span className="text-xs text-muted-foreground">Meal Equivalent Impact</span>
-              </div>
-              <div className="text-2xl font-black text-foreground">{impactMetrics.mealEquivalent} meals</div>
             </div>
           </div>
 
-          {/* Mission Progress */}
+          {/* Main Impact Stats */}
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            {/* Total Impact */}
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 p-4 border border-primary/20">
+              <div className="absolute top-0 right-0 w-16 h-16 bg-primary/10 rounded-full blur-2xl"></div>
+              <TrendingUp className="h-5 w-5 text-primary mb-2" />
+              <div className="text-2xl font-black text-foreground">{impactData.totalImpact}</div>
+              <div className="text-xs text-muted-foreground font-medium">Total Impact</div>
+            </div>
+
+            {/* Lives Impacted */}
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/5 p-4 border border-secondary/20">
+              <div className="absolute top-0 right-0 w-16 h-16 bg-secondary/10 rounded-full blur-2xl"></div>
+              <Users className="h-5 w-5 text-secondary mb-2" />
+              <div className="text-2xl font-black text-foreground">{impactData.livesImpacted}</div>
+              <div className="text-xs text-muted-foreground font-medium">Lives Reached</div>
+            </div>
+
+            {/* Day Streak */}
+            <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 p-4 border border-accent/20">
+              <div className="absolute top-0 right-0 w-16 h-16 bg-accent/10 rounded-full blur-2xl"></div>
+              <Flame className="h-5 w-5 text-accent mb-2" fill="currentColor" />
+              <div className="text-2xl font-black text-foreground">{impactData.dayStreak}</div>
+              <div className="text-xs text-muted-foreground font-medium">Day Streak</div>
+            </div>
+          </div>
+
+          {/* Today's Actions */}
           <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-foreground">Mission Progress</span>
-              <span className="text-xs text-muted-foreground">{completedMissions}/{totalMissions}</span>
-            </div>
-            <Progress value={progressPercentage} className="h-2" />
-          </div>
-
-          {/* Missions List */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-foreground">Missions</span>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-primary animate-pulse"></div>
+                <span className="text-sm font-bold text-foreground">Today's Actions</span>
+                <span className="text-xs text-muted-foreground">({impactData.actionsToday})</span>
+              </div>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 text-xs"
+                className="h-7 text-xs"
                 onClick={() => setIsExpanded(!isExpanded)}
               >
-                {isExpanded ? 'Hide' : 'Show All'}
+                {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
             </div>
-            
-            <div className={`space-y-2 ${isExpanded ? 'max-h-96' : 'max-h-32'} overflow-y-auto transition-all duration-300`}>
-              {missions.map(mission => (
-                <div
-                  key={mission.id}
-                  className={`p-3 rounded-lg border transition-all ${
-                    mission.completed 
-                      ? 'bg-primary/10 border-primary/30' 
-                      : 'bg-muted/30 border-border/30'
-                  }`}
-                >
-                  <div className="flex items-start gap-2">
-                    <CheckCircle 
-                      className={`h-4 w-4 flex-shrink-0 mt-0.5 ${
-                        mission.completed ? 'text-primary' : 'text-muted-foreground'
-                      }`}
-                      fill={mission.completed ? 'currentColor' : 'none'}
-                    />
+
+            {/* Actions List */}
+            <div className={`space-y-2 transition-all duration-300 ${isExpanded ? 'max-h-64 overflow-y-auto' : 'max-h-24 overflow-hidden'}`}>
+              {todaysActions.length > 0 ? (
+                todaysActions.map((action, index) => (
+                  <div
+                    key={action.id}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50 animate-fade-in"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <div className="text-2xl">{action.icon}</div>
                     <div className="flex-1 min-w-0">
-                      <div className={`text-xs font-bold ${
-                        mission.completed ? 'text-foreground' : 'text-muted-foreground'
-                      }`}>
-                        {mission.title}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-0.5">
-                        {mission.description}
-                      </div>
-                      {mission.completed && (
-                        <div className="text-xs text-primary font-bold mt-1">
-                          {mission.impact}
-                        </div>
-                      )}
+                      <div className="text-xs font-bold text-foreground truncate">{action.title}</div>
+                      <div className="text-xs text-muted-foreground">{action.description}</div>
                     </div>
+                    <div className="text-xs font-bold text-primary">+{action.impact}</div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-6 text-sm text-muted-foreground">
+                  <Sparkles className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
+                  Start exploring to create your impact!
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
           {/* Motivational Message */}
-          <div className="mt-4 pt-4 border-t border-border/50">
+          <div className="pt-4 border-t border-border/50">
             <p className="text-xs text-center text-muted-foreground italic">
-              {completedMissions === 0 && "Start your impact journey!"}
-              {completedMissions > 0 && completedMissions < 2 && "Great start! Keep going!"}
-              {completedMissions >= 2 && completedMissions < 4 && "You're making a difference!"}
-              {completedMissions >= 4 && completedMissions < totalMissions && "Almost there, champion!"}
-              {completedMissions === totalMissions && "All missions complete! 🌟"}
+              {impactData.actionsToday === 0 && "Your journey to zero hunger starts now ✨"}
+              {impactData.actionsToday === 1 && "Great start! Keep the momentum going 🌟"}
+              {impactData.actionsToday >= 2 && impactData.actionsToday < 4 && "You're making waves of change! 🌊"}
+              {impactData.actionsToday >= 4 && "Incredible impact today! You're a champion 🏆"}
             </p>
           </div>
         </div>

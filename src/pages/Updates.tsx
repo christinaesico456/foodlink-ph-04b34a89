@@ -7,11 +7,10 @@ import feedingImg from "@/assets/feeding-program.jpg";
 import childrenImg from "@/assets/children-feeding.jpg";
 
 const Updates = () => {
-  const { addImpact } = useGamification();
+  const { recordAction } = useGamification();
 
   useEffect(() => {
-    window.dispatchEvent(new CustomEvent('page-visit', { detail: { page: 'updates' } }));
-    addImpact('peopleReached', 15, 'Staying updated on hunger issues');
+    recordAction('page_visit', 'Checked Latest Updates', 5, '📰');
   }, []);
 
   const updates = [
@@ -126,7 +125,7 @@ const Updates = () => {
               <Card
                 key={index}
                 className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 hover:shadow-2xl transition-all duration-500 cursor-pointer"
-                onClick={() => addImpact('peopleReached', 5, 'Reading updates on hunger initiatives')}
+                onClick={() => recordAction('page_visit', 'Read Update', 5, '📰')}
               >
                 <div className="grid md:grid-cols-5 gap-6">
                   {/* Image */}

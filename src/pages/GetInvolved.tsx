@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import volunteersImg from "@/assets/volunteers.jpg";
 
 const GetInvolved = () => {
-  const { addImpact, completeMission } = useGamification();
+  const { recordAction } = useGamification();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
@@ -22,15 +22,12 @@ const GetInvolved = () => {
   });
 
   useEffect(() => {
-    window.dispatchEvent(new CustomEvent('page-visit', { detail: { page: 'get-involved' } }));
-    addImpact('peopleReached', 20, 'Taking action against hunger');
+    recordAction('page_visit', 'Exploring Ways to Help', 5, '💪');
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addImpact('actionsCompleted', 1);
-    addImpact('peopleReached', 100, 'Volunteering to help fight hunger!');
-    completeMission('volunteer_interest');
+    recordAction('form_interest', 'Submitted Volunteer Form', 50, '🎯');
     toast({
       title: "Thank you for your interest!",
       description: "We'll get back to you soon about volunteer opportunities.",
@@ -144,10 +141,7 @@ const GetInvolved = () => {
               <Card
                 key={index}
                 className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 p-8 hover:shadow-2xl transition-all duration-500 hover:border-primary/40"
-                onClick={() => {
-                  addImpact('peopleReached', 10, `Exploring: ${card.title}`);
-                  addImpact('actionsCompleted', 1);
-                }}
+                onClick={() => recordAction('page_visit', `Explored ${card.title}`, 10, card.icon === HandHeart ? '❤️' : card.icon === DollarSign ? '💰' : card.icon === Share2 ? '📢' : '🤝')}
               >
                 <div className={`absolute inset-0 bg-gradient-to-br from-${card.color}/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
                 
