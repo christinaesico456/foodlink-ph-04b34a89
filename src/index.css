@@ -1,128 +1,117 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Modern design system with bold, contemporary aesthetics */
 
 @layer base {
   :root {
-    /* SDG 2 Zero Hunger Color Palette */
-    --background: 48 71% 96%;  /* Off-White/Cream #f8f7f2 */
-    --foreground: 30 80% 15%;  /* Dark Brown for text */
-
-    --card: 0 0% 100%;
-    --card-foreground: 30 80% 15%;
-
+    /* Base Colors - Warm cream background */
+    --background: 45 25% 96%;
+    --foreground: 25 15% 18%;
+    
+    /* Primary - Vibrant Coral */
+    --primary: 12 88% 58%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Secondary - Deep Teal */
+    --secondary: 180 45% 42%;
+    --secondary-foreground: 0 0% 100%;
+    
+    /* Accent - Sunset Orange */
+    --accent: 35 95% 60%;
+    --accent-foreground: 25 15% 18%;
+    
+    /* Earth Tones */
+    --earth-terracotta: 15 70% 55%;
+    --earth-sand: 42 50% 82%;
+    --earth-moss: 155 35% 45%;
+    
+    /* UI Colors */
+    --muted: 45 20% 90%;
+    --muted-foreground: 25 10% 45%;
+    
     --popover: 0 0% 100%;
-    --popover-foreground: 30 80% 15%;
-
-    /* Zero Hunger Yellow - Primary brand color */
-    --primary: 43 70% 51%;  /* #daa325 */
-    --primary-foreground: 30 80% 15%;
-    --primary-glow: 43 80% 65%;
-
-    /* Vibrant Green - Secondary/success color */
-    --secondary: 100 62% 28%;  /* #38761d */
-    --secondary-foreground: 48 71% 96%;
-
-    /* Warm tones for accents */
-    --muted: 48 50% 90%;
-    --muted-foreground: 30 40% 40%;
-
-    --accent: 28 75% 56%;  /* Warm Orange #e38637 */
-    --accent-foreground: 48 71% 96%;
-
-    /* Rich Earth Brown for depth */
-    --earth: 28 85% 29%;  /* #8c460b */
-    --earth-foreground: 48 71% 96%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 43 40% 85%;
-    --input: 43 40% 90%;
-    --ring: 43 70% 51%;
-
-    --radius: 0.75rem;
+    --popover-foreground: 25 15% 18%;
     
+    --card: 0 0% 100%;
+    --card-foreground: 25 15% 18%;
+    
+    --border: 45 15% 88%;
+    --input: 45 15% 88%;
+    --ring: 12 88% 58%;
+    
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 25 15% 18%;
+    --sidebar-primary: 12 88% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 45 20% 90%;
+    --sidebar-accent-foreground: 25 15% 18%;
+    --sidebar-border: 45 15% 88%;
+    --sidebar-ring: 12 88% 58%;
+    
+    --radius: 1rem;
+
     /* Typography */
-    --font-heading: 'Playfair Display', serif;
-    --font-body: 'Inter', sans-serif;
+    --font-heading: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(12 88% 58%) 0%, hsl(35 95% 60%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(180 45% 42%) 0%, hsl(155 35% 45%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(12 88% 58% / 0.08) 0%, hsl(180 45% 42% / 0.08) 50%, hsl(35 95% 60% / 0.08) 100%);
+    --gradient-overlay: linear-gradient(180deg, transparent 0%, hsl(25 15% 18% / 0.6) 100%);
     
-    /* Custom gradients and effects - Enhanced */
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 50%, hsl(var(--secondary)) 100%);
-    --gradient-warm: linear-gradient(120deg, hsl(var(--accent)) 0%, hsl(var(--primary)) 100%);
-    --gradient-earth: linear-gradient(135deg, hsl(var(--earth)) 0%, hsl(var(--accent)) 100%);
-    --gradient-glow: radial-gradient(circle at 50% 50%, hsl(var(--primary)/0.3), transparent 70%);
-    --gradient-mesh: linear-gradient(135deg, hsl(var(--primary)/0.1) 0%, hsl(var(--accent)/0.1) 50%, hsl(var(--secondary)/0.1) 100%);
-    --shadow-soft: 0 4px 20px hsla(var(--primary), 0.15);
-    --shadow-strong: 0 10px 40px hsla(var(--earth), 0.25);
-    --shadow-glow: 0 0 20px hsla(var(--primary), 0.4);
-    --shadow-neon: 0 0 30px hsla(var(--primary), 0.5), 0 0 60px hsla(var(--accent), 0.3);
-    --glass-bg: hsla(var(--background), 0.7);
-    --glass-border: hsla(var(--primary), 0.2);
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Shadows */
+    --shadow-soft: 0 2px 16px hsl(12 88% 58% / 0.08);
+    --shadow-medium: 0 8px 32px hsl(12 88% 58% / 0.12);
+    --shadow-strong: 0 16px 64px hsl(12 88% 58% / 0.18);
+    --shadow-glow: 0 0 40px hsl(12 88% 58% / 0.3);
   }
 
   .dark {
-    --background: 30 25% 8%;
-    --foreground: 48 71% 96%;
-
-    --card: 30 30% 12%;
-    --card-foreground: 48 71% 96%;
-
-    --popover: 30 30% 12%;
-    --popover-foreground: 48 71% 96%;
-
-    --primary: 43 70% 51%;
-    --primary-foreground: 30 80% 15%;
-    --primary-glow: 43 80% 65%;
-
-    --secondary: 100 62% 28%;
-    --secondary-foreground: 48 71% 96%;
-
-    --muted: 30 20% 20%;
-    --muted-foreground: 48 30% 65%;
-
-    --accent: 28 75% 56%;
-    --accent-foreground: 48 71% 96%;
-
-    --earth: 28 85% 29%;
-    --earth-foreground: 48 71% 96%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 30 25% 25%;
-    --input: 30 25% 20%;
-    --ring: 43 70% 51%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --background: 220 20% 10%;
+    --foreground: 45 25% 96%;
+    
+    --primary: 12 88% 58%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 180 45% 42%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --accent: 35 95% 60%;
+    --accent-foreground: 220 20% 10%;
+    
+    --muted: 220 15% 18%;
+    --muted-foreground: 45 20% 70%;
+    
+    --card: 220 18% 14%;
+    --card-foreground: 45 25% 96%;
+    
+    --popover: 220 18% 14%;
+    --popover-foreground: 45 25% 96%;
+    
+    --border: 220 15% 24%;
+    --input: 220 15% 24%;
+    --ring: 12 88% 58%;
+    
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --sidebar-background: 220 18% 14%;
+    --sidebar-foreground: 45 25% 96%;
+    --sidebar-primary: 12 88% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 220 15% 18%;
+    --sidebar-accent-foreground: 45 25% 96%;
+    --sidebar-border: 220 15% 24%;
+    --sidebar-ring: 12 88% 58%;
   }
 }
 
@@ -142,15 +131,51 @@ All colors MUST be HSL.
 
 @layer components {
   .glass-card {
-    @apply bg-card/60 backdrop-blur-xl border border-primary/20;
-    box-shadow: var(--shadow-soft);
+    background: hsl(var(--card) / 0.7);
+    backdrop-filter: blur(24px) saturate(180%);
+    box-shadow: var(--shadow-medium);
+    border: 1px solid hsl(var(--border) / 0.3);
   }
-  
+
   .glow-effect {
     box-shadow: var(--shadow-glow);
   }
-  
+
   .text-gradient {
-    @apply bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .impact-ring {
+    position: relative;
+  }
+
+  .impact-ring::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    padding: 2px;
+    background: var(--gradient-primary);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.5;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 100px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary));
+    border-radius: 100px;
   }
 }

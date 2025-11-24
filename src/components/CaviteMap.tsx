@@ -33,7 +33,7 @@ const CaviteMap = () => {
     if (tokenInput.trim()) {
       setMapboxToken(tokenInput.trim());
       setShowTokenInput(false);
-      recordAction('map_explore', 'Explored Cavite Map', 20, '🗺️');
+      recordAction('map_explore', 'Explored Cavite Map', 25, '🗺️', 'explore');
     }
   };
 
