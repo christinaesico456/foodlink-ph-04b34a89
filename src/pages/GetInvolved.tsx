@@ -22,12 +22,12 @@ const GetInvolved = () => {
   });
 
   useEffect(() => {
-    recordAction('page_visit', 'Exploring Ways to Help', 5, '💪');
+    recordAction('page_visit_involved', 'Exploring Ways to Help', 10, '💪', 'engage');
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    recordAction('form_interest', 'Submitted Volunteer Form', 50, '🎯');
+    recordAction('form_volunteer', 'Submitted Volunteer Form', 100, '🎯', 'impact');
     toast({
       title: "Thank you for your interest!",
       description: "We'll get back to you soon about volunteer opportunities.",
@@ -141,7 +141,7 @@ const GetInvolved = () => {
               <Card
                 key={index}
                 className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 p-8 hover:shadow-2xl transition-all duration-500 hover:border-primary/40"
-                onClick={() => recordAction('page_visit', `Explored ${card.title}`, 10, card.icon === HandHeart ? '❤️' : card.icon === DollarSign ? '💰' : card.icon === Share2 ? '📢' : '🤝')}
+                onClick={() => recordAction(`action_${card.title.toLowerCase().replace(/\s+/g, '_')}`, `Explored ${card.title}`, 15, card.icon === HandHeart ? '❤️' : card.icon === DollarSign ? '💰' : card.icon === Share2 ? '📢' : '🤝', 'engage')}
               >
                 <div className={`absolute inset-0 bg-gradient-to-br from-${card.color}/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
                 
