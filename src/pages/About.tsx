@@ -14,24 +14,27 @@ const About = () => {
   const hungerFacts = [
     {
       icon: AlertCircle,
-      stat: "16.2M",
-      label: "Filipinos experience food insecurity",
-      description: "Nearly 1 in 6 Filipinos struggle to access nutritious food daily",
-      color: "primary"
+      stat: "10.9%",
+      label: "Filipinos experience food insecurity (PSA 2021)",
+      description: "Philippine Statistics Authority reports 10.9% food insecurity rate",
+      color: "primary",
+      source: "Philippine Statistics Authority, 2021"
     },
     {
       icon: TrendingDown,
-      stat: "28.8%",
-      label: "Child malnutrition rate",
-      description: "Over 1 in 4 children under 5 are stunted due to chronic malnutrition",
-      color: "accent"
+      stat: "33.4%",
+      label: "Child stunting rate (UNICEF 2022)",
+      description: "UNICEF data shows 33.4% of Filipino children under 5 are stunted",
+      color: "accent",
+      source: "UNICEF Philippines, 2022"
     },
     {
       icon: Users,
-      stat: "3.5M",
-      label: "Households in Cavite",
-      description: "Thousands of families in Cavite face daily food challenges",
-      color: "secondary"
+      stat: "1.08M",
+      label: "Households in Cavite (PSA 2020 Census)",
+      description: "With estimated 20.3% rural poverty incidence in CALABARZON",
+      color: "secondary",
+      source: "Philippine Statistics Authority, 2020 Census"
     }
   ];
 

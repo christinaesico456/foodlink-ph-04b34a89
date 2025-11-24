@@ -10,7 +10,9 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Organizations from "./pages/Organizations";
 import GetInvolved from "./pages/GetInvolved";
-import Updates from "./pages/Updates";
+import Community from "./pages/Community";
+import Quiz from "./pages/Quiz";
+import Footer from "./components/Footer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,9 +31,11 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/organizations" element={<Organizations />} />
             <Route path="/get-involved" element={<GetInvolved />} />
-            <Route path="/updates" element={<Updates />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/quiz" element={<Quiz />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <Footer />
         </BrowserRouter>
       </TooltipProvider>
     </GamificationProvider>

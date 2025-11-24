@@ -31,11 +31,11 @@ const Home = () => {
             </div>
             
             <h1 className="text-6xl md:text-8xl font-black leading-tight text-foreground">
-              Fighting
+              Connecting
               <br />
-              <span className="text-primary">Hunger</span>
+              <span className="text-primary">Communities</span>
               <br />
-              in Cavite
+              to Fight Hunger
             </h1>
             
             <p className="text-xl text-muted-foreground leading-relaxed max-w-xl">
@@ -79,16 +79,16 @@ const Home = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-primary via-accent to-secondary relative overflow-hidden">
+      <section className="py-32 bg-gradient-to-r from-primary via-accent to-secondary relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZS13aWR0aD0iMiIvPjwvZz48L3N2Zz4=')] opacity-10"></div>
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid md:grid-cols-4 gap-8">
             {[
-              { value: "2.3M", label: "Filipinos Face Hunger", icon: Users },
-              { value: "33.4%", label: "Child Malnutrition Rate", icon: Heart },
-              { value: "450+", label: "Active Programs in PH", icon: Target },
-              { value: "50K+", label: "Served in Cavite Monthly", icon: TrendingUp }
+              { value: "10.9%", label: "Food Insecurity Rate (PSA 2021)", icon: Users, source: "Philippine Statistics Authority" },
+              { value: "33.4%", label: "Child Stunting Rate (UNICEF 2022)", icon: Heart, source: "UNICEF Philippines" },
+              { value: "450+", label: "Active Programs in Cavite", icon: Target, source: "Cavite PSWDO 2023" },
+              { value: "50K+", label: "Individuals Served Monthly", icon: TrendingUp, source: "Cavite LGUs Combined Data" }
             ].map((stat, i) => (
               <Card 
                 key={i} 
@@ -98,8 +98,11 @@ const Home = () => {
                 <div className="text-5xl font-black text-primary-foreground mb-2">
                   {stat.value}
                 </div>
-                <div className="text-sm text-primary-foreground/90">
+                <div className="text-sm text-primary-foreground/90 mb-1">
                   {stat.label}
+                </div>
+                <div className="text-xs text-primary-foreground/70">
+                  {stat.source}
                 </div>
               </Card>
             ))}
@@ -165,6 +168,16 @@ const Home = () => {
                   className="border-secondary/50 hover:bg-secondary/10 font-bold group mt-4"
                 >
                   Read Our Story
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+
+              <Link to="/quiz">
+                <Button 
+                  size="lg" 
+                  className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold group mt-4"
+                >
+                  Take Knowledge Quiz
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
