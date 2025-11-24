@@ -1,5 +1,5 @@
 import { useGamification } from '@/contexts/GamificationContext';
-import { Flame, TrendingUp, Users, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { Flame, TrendingUp, Users, Sparkles, ChevronDown, ChevronUp, Minimize2, Maximize2 } from 'lucide-react';
 import { Card } from './ui/card';
 import { useState } from 'react';
 import { Button } from './ui/button';
@@ -7,10 +7,31 @@ import { Button } from './ui/button';
 const GamificationBar = () => {
   const { impactData, todaysActions } = useGamification();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+
+  if (isMinimized) {
+    return (
+      <div className="fixed bottom-6 right-6 z-50 animate-fade-in">
+        <Button
+          onClick={() => setIsMinimized(false)}
+          size="lg"
+          className="rounded-full w-16 h-16 shadow-2xl bg-primary hover:bg-primary/90 group relative overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 blur-xl"></div>
+          <Sparkles className="h-6 w-6 text-primary-foreground group-hover:scale-110 transition-transform relative z-10" />
+          {impactData.actionsToday > 0 && (
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-accent rounded-full flex items-center justify-center text-xs font-bold text-accent-foreground border-2 border-background">
+              {impactData.actionsToday}
+            </div>
+          )}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed bottom-6 right-6 z-50 w-96 animate-fade-in">
-      <Card className="glass-card overflow-hidden border-2">
+      <Card className="glass-card overflow-hidden border-2 shadow-2xl">
         {/* Gradient accent line */}
         <div className="h-1 bg-gradient-to-r from-primary via-accent to-secondary"></div>
         
@@ -27,6 +48,14 @@ const GamificationBar = () => {
                 <p className="text-xs text-muted-foreground">Every action creates waves of change</p>
               </div>
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 hover:bg-primary/10"
+              onClick={() => setIsMinimized(true)}
+            >
+              <Minimize2 className="h-4 w-4" />
+            </Button>
           </div>
 
           {/* Main Impact Stats */}
