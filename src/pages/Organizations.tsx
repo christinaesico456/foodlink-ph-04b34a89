@@ -8,7 +8,7 @@ const Organizations = () => {
   const { recordAction } = useGamification();
 
   useEffect(() => {
-    recordAction('page_visit_orgs', 'Discovered Organizations', 10, '🏢', 'explore');
+    recordAction('view_org', 'Discovered Organizations', 15, '🏢');
   }, []);
 
   const organizations = [
@@ -129,7 +129,7 @@ const Organizations = () => {
                 key={index}
                 className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer"
                 onClick={() => {
-                  recordAction(`org_view_${org.name.toLowerCase().replace(/\s+/g, '_')}`, `Viewed ${org.name}`, 15, '🏢', 'learn');
+                  recordAction('view_org', `Viewed ${org.name}`, 10, '🏢');
                   if (org.website) {
                     window.open(org.website, '_blank');
                   }

@@ -11,7 +11,7 @@ const Home = () => {
   const { recordAction } = useGamification();
 
   useEffect(() => {
-    recordAction('page_visit_home', 'Visited Home', 10, '🏠', 'explore');
+    recordAction('page_visit', 'Visited Home', 5, '🏠');
   }, []);
 
   return (

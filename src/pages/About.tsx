@@ -8,7 +8,7 @@ const About = () => {
   const { recordAction } = useGamification();
 
   useEffect(() => {
-    recordAction('page_visit_about', 'Learning About Hunger', 10, '📚', 'learn');
+    recordAction('learn_fact', 'Learning About Hunger', 10, '📚');
   }, []);
 
   const hungerFacts = [
@@ -100,7 +100,7 @@ const About = () => {
               <Card
                 key={index}
                 className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 cursor-pointer"
-                onClick={() => recordAction(`fact_${index}`, 'Read Hunger Fact', 10, '📊', 'learn')}
+                onClick={() => recordAction('learn_fact', 'Read Hunger Fact', 5, '📊')}
               >
                 <div className={`absolute inset-0 bg-gradient-to-br from-${fact.color}/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
                 
@@ -149,7 +149,7 @@ const About = () => {
               <Card
                 key={index}
                 className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 p-8 hover:shadow-2xl transition-all duration-500 cursor-pointer"
-                onClick={() => recordAction(`solution_${index}`, 'Explored Solution', 10, '💡', 'learn')}
+                onClick={() => recordAction('learn_fact', 'Explored Solution', 5, '💡')}
               >
                 <div className={`absolute inset-0 bg-gradient-to-br ${solution.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
                 

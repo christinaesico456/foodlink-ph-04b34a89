@@ -10,7 +10,7 @@ const Updates = () => {
   const { recordAction } = useGamification();
 
   useEffect(() => {
-    recordAction('page_visit_updates', 'Checked Latest Updates', 10, '📰', 'learn');
+    recordAction('page_visit', 'Checked Latest Updates', 5, '📰');
   }, []);
 
   const updates = [
@@ -125,7 +125,7 @@ const Updates = () => {
               <Card
                 key={index}
                 className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 hover:shadow-2xl transition-all duration-500 cursor-pointer"
-                onClick={() => recordAction(`update_${index}`, 'Read Update', 15, '📰', 'learn')}
+                onClick={() => recordAction('page_visit', 'Read Update', 5, '📰')}
               >
                 <div className="grid md:grid-cols-5 gap-6">
                   {/* Image */}
