@@ -1,104 +1,118 @@
-import { Card } from "@/components/ui/card";
-import { Github, Linkedin, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
+import CriseldaImg from "@/assets/Criselda.jpg";
+import KurtImg from "@/assets/Kurt.jpg";
+import ChristinaImg from "@/assets/Christina.jpg";
+
 
 const Footer = () => {
   const developers = [
     {
-      name: "Maria Santos",
-      role: "Full Stack Developer",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
-      github: "https://github.com",
-      linkedin: "https://linkedin.com",
-      email: "maria@foodlinkph.org"
+      name: "Kurt Acosta",
+      image: KurtImg,
     },
     {
-      name: "Juan dela Cruz",
-      role: "Backend Developer",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-      github: "https://github.com",
-      linkedin: "https://linkedin.com",
-      email: "juan@foodlinkph.org"
+      name: "Christina Esico",
+      image: ChristinaImg 
     },
     {
-      name: "Ana Rodriguez",
-      role: "UI/UX Designer",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
-      github: "https://github.com",
-      linkedin: "https://linkedin.com",
-      email: "ana@foodlinkph.org"
+      name: "Criselda Perdito",
+      image: CriseldaImg,
     }
   ];
 
   return (
-    <footer className="relative bg-gradient-to-br from-muted/50 to-background border-t border-border">
-      <div className="container mx-auto px-4 py-16">
-        {/* Developers Section */}
-        <div className="mb-12">
-          <h3 className="text-3xl font-black text-center mb-8 text-foreground">
-            Meet the <span className="text-primary">Team</span>
-          </h3>
+    <footer className="bg-background pt-10 pb-8 border-t border-primary/10">
+      <div className="container mx-auto px-6 md:px-12">
+        
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-16">
           
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {developers.map((dev, index) => (
-              <Card
-                key={index}
-                className="group relative overflow-hidden bg-card/40 backdrop-blur-xl border-primary/20 hover:shadow-2xl transition-all duration-500 p-6 text-center"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                
-                <div className="relative z-10">
-                  <div className="relative w-32 h-32 mx-auto mb-4">
-                    <img
-                      src={dev.image}
-                      alt={dev.name}
-                      className="w-full h-full rounded-full object-cover border-4 border-primary/20 group-hover:border-primary/50 transition-all duration-500"
-                    />
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          {/* Column 1: Brand Info */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-lg">F</span>
+              </div>
+              <span className="text-2xl font-black text-foreground">FoodLink PH</span>
+            </div>
+            
+            <p className="text-muted-foreground leading-relaxed text-sm max-w-xs">
+              Connecting communities to fight hunger. We ensure every Filipino has access 
+              to nutritious food through technology and cooperation.
+            </p>
+          </div>
+
+          {/* Column 2: Company Links */}
+          <div>
+            <h4 className="font-bold text-muted-foreground uppercase tracking-wider text-lg mb-6">
+              Company
+            </h4>
+            <ul className="space-y-4">
+              {['About Us', 'Our Mission', 'Organizations', 'Success Stories'].map((item) => (
+                <li key={item}>
+                  <Link 
+                    to="#" 
+                    className="text-foreground/80 hover:text-primary transition-colors text-sm font-medium"
+                  >
+                    {item}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 3: Help Links */}
+          <div>
+            <h4 className="font-bold text-muted-foreground uppercase tracking-wider text-lg mb-6">
+              Help & Support
+            </h4>
+            <ul className="space-y-4">
+              {['Contact Us', 'Donate Food', 'Volunteer Guide', 'Privacy Policy'].map((item) => (
+                <li key={item}>
+                  <Link 
+                    to="#" 
+                    className="text-foreground/80 hover:text-primary transition-colors text-sm font-medium"
+                  >
+                    {item}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 4: Team Members */}
+          <div>
+            <h4 className="font-bold text-muted-foreground uppercase tracking-wider text-lg mb-6">
+              Built by the Team
+            </h4>
+            <p className="text-sm text-muted-foreground mb-8">
+              Crafted with passion by our dedicated developers.
+            </p>
+            <div className="flex items-center gap-3">
+              {developers.map((dev, index) => (
+                <div key={index} className="group relative">
+                  {/* Tooltip on Hover */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-foreground text-background text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-lg z-10">
+                    {dev.name} 
                   </div>
                   
-                  <h4 className="text-xl font-bold text-foreground mb-1">{dev.name}</h4>
-                  <p className="text-sm text-muted-foreground mb-4">{dev.role}</p>
-                  
-                  <div className="flex justify-center gap-3">
-                    <a
-                      href={dev.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 rounded-full bg-muted/50 hover:bg-primary/20 transition-colors"
-                    >
-                      <Github className="h-4 w-4 text-foreground" />
-                    </a>
-                    <a
-                      href={dev.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2 rounded-full bg-muted/50 hover:bg-primary/20 transition-colors"
-                    >
-                      <Linkedin className="h-4 w-4 text-foreground" />
-                    </a>
-                    <a
-                      href={`mailto:${dev.email}`}
-                      className="p-2 rounded-full bg-muted/50 hover:bg-primary/20 transition-colors"
-                    >
-                      <Mail className="h-4 w-4 text-foreground" />
-                    </a>
-                  </div>
+                  {/* Avatar */}
+                  <img
+                    src={dev.image}
+                    alt={dev.name}
+                    className="w-16 h-16 rounded-full border-2 border-background object-cover ring-2 ring-transparent group-hover:ring-primary transition-all cursor-pointer hover:scale-110"
+                  />
                 </div>
-              </Card>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Footer Bottom */}
-        <div className="border-t border-border pt-8">
-          <div className="text-center space-y-4">
-            <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} FoodLink PH. Fighting hunger in Cavite, one community at a time.
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Built with ❤️ for SDG 2: Zero Hunger
-            </p>
-          </div>
+        {/* Bottom Section: Copyright */}
+        <div className="pt-2 border-t border-border/50 text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-based text-muted-foreground">
+            © {new Date().getFullYear()} FoodLink PH. All Rights Reserved.
+          </p>
         </div>
       </div>
     </footer>

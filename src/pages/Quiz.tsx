@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Brain, CheckCircle, XCircle, Award, RotateCcw } from "lucide-react";
+import { Brain, CheckCircle, XCircle, Award, RotateCcw, ArrowRight } from "lucide-react";
 import { useGamification } from "@/contexts/GamificationContext";
 import { toast } from "sonner";
 
@@ -20,7 +20,13 @@ const Quiz = () => {
   const [score, setScore] = useState(0);
   const [showScore, setShowScore] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [answeredQuestions, setAnsweredQuestions] = useState<boolean[]>([]);
+
+  useEffect(() => {
+    recordAction('page_visit', 'Started Knowledge Quiz', 5, '🧠');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const questions: Question[] = [
     {
@@ -104,9 +110,9 @@ const Quiz = () => {
     if (isCorrect) {
       setScore(score + 1);
       recordAction('learn_fact', 'Answered Correctly', 15, '✅');
-      toast.success("Correct! " + questions[currentQuestion].explanation);
+      toast.success("Correct Answer!");
     } else {
-      toast.error("Incorrect. " + questions[currentQuestion].explanation);
+      toast.error("Incorrect Answer");
     }
 
     const newAnswered = [...answeredQuestions];
@@ -139,140 +145,179 @@ const Quiz = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative min-h-[40vh] flex items-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10"></div>
+      
+      {/* ================= HERO SECTION ================= */}
+      <section className="relative min-h-[400px] flex items-center justify-center overflow-hidden">
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(218,163,37,0.1),transparent_50%)]"></div>
         
-        <div className="container mx-auto px-4 relative z-10 pt-24">
-          <div className="max-w-4xl mx-auto text-center animate-fade-in">
+        <div className="container mx-auto px-4 relative z-10 pt-5 text-center">
+          <div className="max-w-4xl mx-auto animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/30 mb-6">
               <Brain className="h-4 w-4 text-primary" />
               <span className="text-sm font-bold text-primary">Test Your Knowledge</span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-black mb-6 text-foreground">
+            <h1 className="text-5xl md:text-7xl font-black mb-8 text-foreground leading-tight">
               Hunger <span className="text-primary">Knowledge</span> Quiz
             </h1>
             
-            <p className="text-xl text-muted-foreground">
-              Learn facts about hunger in the Philippines and test your understanding
+            <p className="text-based text-muted-foreground max-w-xl mx-auto">
+              Challenge yourself with facts about hunger in the Philippines and learn how you can be part of the solution.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Quiz Section */}
-      <section className="py-12 md:py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
+      {/* ================= QUIZ SECTION ================= */}
+      <section className="relative py-12 md:py-8 -mt-10 z-20">
+        
+        {/* Top Blender Fade */}
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background via-background/60 to-transparent pointer-events-none"></div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          
+          {/* CHANGED: Reduced width from 'max-w-3xl' to 'max-w-xl' */}
+          <div className="max-w-xl mx-auto">
+            
             {!showScore ? (
-              <Card className="glass-card p-6 md:p-10">
-                {/* Progress */}
-                <div className="mb-8">
+              <Card className="relative overflow-hidden bg-white/40 backdrop-blur-xl border border-white/50 shadow-2xl rounded-3xl 
+                p-6 md:p-8" 
+                /* CHANGED: Reduced padding from 'p-6 md:p-10' to 'p-6 md:p-8' */
+              >
+                {/* Decorative Glow */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+
+                {/* Progress Bar */}
+                {/* CHANGED: Reduced bottom margin from 'mb-8' to 'mb-6' */}
+                <div className="mb-6 relative z-10">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-bold text-muted-foreground">
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                       Question {currentQuestion + 1} of {questions.length}
                     </span>
-                    <span className="text-sm font-bold text-primary">
-                      Score: {score}/{questions.length}
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-1 rounded-full">
+                      Score: {score}
                     </span>
                   </div>
-                  <Progress value={(currentQuestion / questions.length) * 100} className="h-2" />
+                  <Progress value={(currentQuestion / questions.length) * 100} className="h-2 bg-secondary/20" />
                 </div>
 
                 {/* Question */}
-                <h2 className="text-2xl md:text-3xl font-bold mb-8 text-foreground">
-                  {questions[currentQuestion].question}
-                </h2>
+                {/* CHANGED: Removed min-height constraint to fit content tightly */}
+                <div className="mb-6 relative z-10">
+                  <h2 className="text-xl md:text-2xl font-bold text-foreground leading-snug">
+                    {questions[currentQuestion].question}
+                  </h2>
+                </div>
 
                 {/* Options */}
-                <div className="space-y-4 mb-8">
+                <div className="space-y-3 mb-6 relative z-10">
                   {questions[currentQuestion].options.map((option, index) => (
                     <button
                       key={index}
                       onClick={() => handleAnswerClick(index)}
                       disabled={selectedAnswer !== null}
-                      className={`w-full p-4 text-left rounded-lg border-2 transition-all duration-300 ${
+                      /* CHANGED: Reduced padding from 'p-5' to 'p-4' */
+                      className={`w-full p-4 text-left rounded-xl border-2 transition-all duration-300 relative overflow-hidden group ${
                         selectedAnswer === null
-                          ? 'border-border hover:border-primary/50 hover:bg-primary/5'
+                          ? 'border-border/50 bg-white/50 hover:border-primary/50 hover:bg-primary/5 hover:scale-[1.01] hover:shadow-md'
                           : selectedAnswer === index
                           ? index === questions[currentQuestion].correct
-                            ? 'border-green-500 bg-green-500/10'
-                            : 'border-red-500 bg-red-500/10'
+                            ? 'border-green-500 bg-green-50'
+                            : 'border-red-500 bg-red-50'
                           : index === questions[currentQuestion].correct
-                          ? 'border-green-500 bg-green-500/10'
-                          : 'border-border opacity-50'
+                          ? 'border-green-500 bg-green-50'
+                          : 'border-border/30 opacity-50'
                       }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-foreground">{option}</span>
+                      <div className="flex items-center justify-between relative z-10">
+                        <span className="font-medium text-foreground text-base">{option}</span>
                         {selectedAnswer !== null && (
-                          <>
+                          <div className="animate-scale-in">
                             {index === questions[currentQuestion].correct && (
-                              <CheckCircle className="h-6 w-6 text-green-500" />
+                              <CheckCircle className="h-5 w-5 text-green-600" />
                             )}
                             {selectedAnswer === index && index !== questions[currentQuestion].correct && (
-                              <XCircle className="h-6 w-6 text-red-500" />
+                              <XCircle className="h-5 w-5 text-red-600" />
                             )}
-                          </>
+                          </div>
                         )}
                       </div>
                     </button>
                   ))}
                 </div>
 
-                {/* Source */}
-                {selectedAnswer !== null && (
-                  <div className="mb-6 p-4 bg-muted/30 rounded-lg animate-fade-in">
-                    <p className="text-sm text-muted-foreground">
-                      <strong>Source:</strong> {questions[currentQuestion].source}
+
+                {/* Explanation / Footer */}
+                <div className={`transition-all duration-500 ease-in-out overflow-hidden ${selectedAnswer !== null ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                  <div className="bg-muted/40 border border-primary/10 p-6 rounded-2xl mb-6">
+                    <h4 className="font-bold text-foreground mb-2 flex items-center gap-2">
+                      <Brain className="h-4 w-4 text-primary" />
+                      Did you know?
+                    </h4>
+                    <p className="text-muted-foreground mb-4 leading-relaxed">
+                      {questions[currentQuestion].explanation}
+                    </p>
+                    <p className="text-xs text-muted-foreground border-t border-border/50 pt-3">
+                      <strong className="text-primary">Source:</strong> {questions[currentQuestion].source}
                     </p>
                   </div>
-                )}
 
-                {/* Next Button */}
-                {selectedAnswer !== null && (
                   <Button
                     onClick={handleNextQuestion}
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
-                    size="lg"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-12 text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
                   >
-                    {currentQuestion === questions.length - 1 ? 'See Results' : 'Next Question'}
+                    {currentQuestion === questions.length - 1 ? 'See Final Results' : 'Next Question'}
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
-                )}
+                </div>
               </Card>
             ) : (
-              <Card className="glass-card p-6 md:p-10 text-center">
-                <Award className="h-20 w-20 mx-auto mb-6 text-primary" />
+              <Card className="relative overflow-hidden bg-white/40 backdrop-blur-xl border border-white/50 shadow-2xl p-8 md:p-12 text-center rounded-3xl animate-scale-in">
+                {/* Confetti/Glow Background */}
+                <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
                 
-                <h2 className="text-4xl md:text-5xl font-black mb-4 text-foreground">
-                  Quiz Complete!
-                </h2>
-                
-                <div className="text-6xl font-black mb-6 text-primary">
-                  {score}/{questions.length}
+                <div className="relative z-10">
+                  <div className="inline-flex p-6 bg-primary/10 rounded-full mb-8 animate-bounce">
+                    <Award className="h-16 w-16 text-primary" />
+                  </div>
+                  
+                  <h2 className="text-4xl md:text-5xl font-black mb-2 text-foreground">
+                    Quiz Complete!
+                  </h2>
+                  <p className="text-lg text-muted-foreground mb-8">Here is how you did</p>
+                  
+                  <div className="mb-10">
+                    <div className="text-8xl font-black text-primary mb-2 drop-shadow-sm">
+                      {score}<span className="text-4xl text-muted-foreground font-bold">/{questions.length}</span>
+                    </div>
+                    <div className="inline-block px-6 py-2 bg-background/50 rounded-full border border-border">
+                      <p className="text-lg font-medium text-foreground">
+                        {score >= 9 && "🏆 Hunger Awareness Expert!"}
+                        {score >= 7 && score < 9 && "🌟 Knowledge Champion!"}
+                        {score >= 5 && score < 7 && "📚 Good Effort!"}
+                        {score < 5 && "💡 Keep Learning!"}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <Button
+                    onClick={handleRestart}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-12 px-8 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
+                  >
+                    <RotateCcw className="mr-2 h-5 w-5" />
+                    Try Again
+                  </Button>
                 </div>
-                
-                <p className="text-xl text-muted-foreground mb-8">
-                  {score >= 9 && "Outstanding! You're a hunger awareness expert! 🏆"}
-                  {score >= 7 && score < 9 && "Great job! You have strong knowledge about hunger issues. 🌟"}
-                  {score >= 5 && score < 7 && "Good effort! Keep learning about hunger solutions. 📚"}
-                  {score < 5 && "Thanks for participating! Explore our site to learn more. 💡"}
-                </p>
-                
-                <Button
-                  onClick={handleRestart}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
-                  size="lg"
-                >
-                  <RotateCcw className="mr-2 h-5 w-5" />
-                  Try Again
-                </Button>
               </Card>
             )}
           </div>
         </div>
       </section>
+      
+      {/* Bottom Spacer for Blender Effect */}
+      <div className="h-20 bg-gradient-to-t from-background to-transparent"></div>
     </div>
   );
 };
