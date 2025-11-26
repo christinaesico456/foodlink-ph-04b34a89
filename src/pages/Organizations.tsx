@@ -29,7 +29,7 @@ const Organizations = () => {
       description: "Department of Social Welfare and Development - CALABARZON implements feeding programs, cash assistance, and livelihood projects for vulnerable families in Cavite.",
       location: "Regional Center, Calamba, Laguna (serves Cavite)",
       contact: "dswd.calabarzon@dswd.gov.ph",
-      website: "https://ro4a.dswd.gov.ph/",
+      website: "https://fo4a.dswd.gov.ph/",
       focus: ["Feeding Programs", "Pantawid Pamilya", "Supplementary Feeding"],
       color: "primary"
     },
@@ -39,7 +39,7 @@ const Organizations = () => {
       description: "Cavite Provincial Government coordinates various nutrition and food security programs across municipalities, including the Provincial Nutrition Council.",
       location: "Trece Martires City, Cavite",
       contact: "(046) 419-3164",
-      website: "https://cavite.gov.ph/",
+      website: "https://cavite.gov.ph/home/",
       focus: ["Nutrition Programs", "Agri Support", "Community Kitchens"],
       color: "secondary"
     },
@@ -48,7 +48,7 @@ const Organizations = () => {
       type: "Non-Profit Organization",
       description: "International hunger relief organization providing meal packing events and distributing food packages to communities in Metro Manila and nearby provinces including Cavite.",
       location: "Metro Manila (operates in Cavite)",
-      website: "https://www.riseagainsthunger.ph/",
+      website: "https://www.riseagainsthunger.org.ph/",
       focus: ["Food Distribution", "Meal Packing", "Community Outreach"],
       color: "accent"
     },
@@ -86,7 +86,7 @@ const Organizations = () => {
     <div className="bg-background">
       
       {/* ================= HERO SECTION ================= */}
-      <section className="relative min-h-[400px] lg:min-h-[500px] flex items-center overflow-hidden">
+      <section className="relative min-h-500px] lg:min-h-[600px] flex items-center overflow-hidden">
         
         {/* Background Gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5"></div>

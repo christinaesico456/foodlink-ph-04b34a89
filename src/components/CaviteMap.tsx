@@ -1,178 +1,288 @@
 import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { Card } from './ui/card';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
-import { MapPin, AlertCircle } from 'lucide-react';
-import { useGamification } from '@/contexts/GamificationContext';
+import { Card } from '@/components/ui/card';
+import { MapPin, Building2 } from 'lucide-react';
+
+declare global {
+  interface Window {
+    L: any;
+  }
+}
 
 const CaviteMap = () => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState<string>('');
-  const [tokenInput, setTokenInput] = useState<string>('');
-  const [showTokenInput, setShowTokenInput] = useState<boolean>(true);
-  const { recordAction } = useGamification();
+  const mapContainer = useRef(null);
+  const map = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
 
-  // Cavite municipalities and cities with coordinates
-  const locations = [
-    { name: "Bacoor", coords: [120.9496, 14.4670], type: "city", programs: ["Feeding Program", "Food Banks"] },
-    { name: "Imus", coords: [120.9368, 14.4297], type: "city", programs: ["Community Kitchen", "Nutrition Centers"] },
-    { name: "Dasmariñas", coords: [120.9366, 14.3294], type: "city", programs: ["School Feeding", "Food Distribution"] },
-    { name: "Cavite City", coords: [120.8958, 14.4791], type: "city", programs: ["Emergency Relief", "Community Pantries"] },
-    { name: "Tagaytay", coords: [120.9596, 14.1095], type: "city", programs: ["Urban Farming", "Food Security Programs"] },
-    { name: "Trece Martires", coords: [120.8653, 14.2817], type: "city", programs: ["Provincial Nutrition Office", "Feeding Programs"] },
-    { name: "General Trias", coords: [120.8806, 14.3863], type: "city", programs: ["Community Feeding", "Agricultural Support"] },
-    { name: "Rosario", coords: [120.8553, 14.4123], type: "municipality", programs: ["Food Assistance", "Livelihood Programs"] },
-    { name: "Kawit", coords: [120.9030, 14.4463], type: "municipality", programs: ["Supplementary Feeding", "Health Services"] },
-    { name: "Silang", coords: [120.9780, 14.2305], type: "municipality", programs: ["Agriculture Projects", "Food Security"] },
+  // Organizations with verified actual locations in Cavite
+  const organizations = [
+    {
+      name: "DSWD Field Office IV-A (CALABARZON)",
+      type: "Government Agency",
+      coords: { lat: 14.4193, lng: 121.0416 }, // Alabang, Muntinlupa (serves Cavite)
+      programs: ["4Ps Program", "AICS", "Supplementary Feeding", "Social Pension"],
+      color: "#DAA325",
+      note: "Regional office serving all of CALABARZON including Cavite"
+    },
+    {
+      name: "DSWD Cavite SWAD Office",
+      type: "Government Office",
+      coords: { lat: 14.4670, lng: 120.9496 }, // Bacoor City (Main Square Mall)
+      programs: ["Social Assistance", "Crisis Response", "Family Services"],
+      color: "#DAA325"
+    },
+    {
+      name: "Provincial Capitol - Cavite",
+      type: "Provincial Government",
+      coords: { lat: 14.2798, lng: 120.8672 }, // Trece Martires City
+      programs: ["Provincial Nutrition Council", "Food Security Programs", "Agri Support"],
+      color: "#10B981"
+    },
+    {
+      name: "Bacoor City Social Welfare Office",
+      type: "City Government",
+      coords: { lat: 14.4670, lng: 120.9496 },
+      programs: ["City Feeding Program", "Food Assistance", "Senior Citizen Support"],
+      color: "#10B981"
+    },
+    {
+      name: "Imus City Social Services",
+      type: "City Government",
+      coords: { lat: 14.4297, lng: 120.9368 },
+      programs: ["School Feeding", "Community Pantries", "Nutrition Education"],
+      color: "#10B981"
+    },
+    {
+      name: "Dasmariñas City Social Services",
+      type: "City Government",
+      coords: { lat: 14.3294, lng: 120.9366 },
+      programs: ["Supplementary Feeding", "Food Distribution", "Health Services"],
+      color: "#10B981"
+    },
+    {
+      name: "Cavite City Social Welfare",
+      type: "City Government",
+      coords: { lat: 14.4791, lng: 120.8958 },
+      programs: ["Emergency Relief", "Community Kitchen", "Livelihood Programs"],
+      color: "#10B981"
+    },
+    {
+      name: "General Trias City Programs",
+      type: "City Government",
+      coords: { lat: 14.3863, lng: 120.8806 },
+      programs: ["Community Feeding", "Agricultural Support", "Food Banks"],
+      color: "#10B981"
+    },
+    {
+      name: "Tagaytay City Social Services",
+      type: "City Government",
+      coords: { lat: 14.1095, lng: 120.9596 },
+      programs: ["Urban Farming", "Food Security", "Community Support"],
+      color: "#10B981"
+    },
+    {
+      name: "Philippine Red Cross - Cavite Chapter",
+      type: "NGO",
+      coords: { lat: 14.4791, lng: 120.8958 }, // P. Burgos Avenue, Cavite City
+      programs: ["Emergency Feeding", "Disaster Response", "Blood Services", "Health Programs"],
+      color: "#DC2626"
+    },
+    {
+      name: "Red Cross - Dasmariñas Branch",
+      type: "NGO",
+      coords: { lat: 14.3294, lng: 120.9366 }, // Aguinaldo Highway, Dasmariñas
+      programs: ["Blood Services", "Community Health", "First Aid Training"],
+      color: "#DC2626"
+    },
+    {
+      name: "Gawad Kalinga - Dasmariñas Village",
+      type: "NGO",
+      coords: { lat: 14.3100, lng: 120.9500 }, // Sampaloc, Dasmariñas (GK Georgetown)
+      programs: ["Community Building", "Food Security", "Housing", "Livelihood"],
+      color: "#EA580C"
+    },
+    {
+      name: "World Vision - CALABARZON Area",
+      type: "NGO",
+      coords: { lat: 14.2305, lng: 120.9780 }, // Operations in Silang area
+      programs: ["Child Nutrition", "Sustainable Agriculture", "Education Support"],
+      color: "#EA580C"
+    },
+    {
+      name: "Rise Against Hunger - Cavite Operations",
+      type: "NGO",
+      coords: { lat: 14.4200, lng: 120.9200 }, // Cavite area operations
+      programs: ["Meal Packing Events", "Food Distribution", "Community Outreach"],
+      color: "#EA580C"
+    },
+    {
+      name: "Rosario Municipal Office",
+      type: "Municipal Government",
+      coords: { lat: 14.4123, lng: 120.8553 },
+      programs: ["Food Assistance", "Livelihood Programs", "Health Services"],
+      color: "#10B981"
+    },
+    {
+      name: "Kawit Municipal Programs",
+      type: "Municipal Government",
+      coords: { lat: 14.4463, lng: 120.9030 },
+      programs: ["Supplementary Feeding", "Health Services", "Community Support"],
+      color: "#10B981"
+    }
   ];
 
-  const handleTokenSubmit = () => {
-    if (tokenInput.trim()) {
-      setMapboxToken(tokenInput.trim());
-      setShowTokenInput(false);
-      recordAction('map_explore', 'Explored Cavite Map', 20, '🗺️');
-    }
-  };
-
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken) return;
+    if (!mapContainer.current) return;
 
-    mapboxgl.accessToken = mapboxToken;
-    
-    try {
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
-        center: [120.9, 14.3], // Center of Cavite
-        zoom: 10,
-        pitch: 45,
-      });
+    const loadLeaflet = () => {
+      if (!document.getElementById('leaflet-css')) {
+        const link = document.createElement('link');
+        link.id = 'leaflet-css';
+        link.rel = 'stylesheet';
+        link.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css';
+        document.head.appendChild(link);
+      }
 
-      // Add navigation controls
-      map.current.addControl(
-        new mapboxgl.NavigationControl({
-          visualizePitch: true,
-        }),
-        'top-right'
-      );
+      if (window.L) {
+        initializeMap();
+        return;
+      }
 
-      // Add markers for each location
-      map.current.on('load', () => {
-        locations.forEach(location => {
-          // Create custom marker element
-          const el = document.createElement('div');
-          el.className = 'custom-marker';
-          el.style.cssText = `
-            width: 30px;
-            height: 30px;
-            background: linear-gradient(135deg, hsl(43, 70%, 51%), hsl(28, 75%, 56%));
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            cursor: pointer;
-            transition: all 0.3s ease;
-          `;
-          
-          el.addEventListener('mouseenter', () => {
-            el.style.transform = 'scale(1.2)';
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js';
+      script.async = true;
+      script.onload = () => {
+        initializeMap();
+      };
+      script.onerror = () => {
+        console.error('Failed to load Leaflet');
+        setIsLoading(false);
+      };
+      document.head.appendChild(script);
+    };
+
+    const initializeMap = () => {
+      try {
+        // Center on Cavite province
+        const caviteCenter = [14.3, 120.9];
+
+        map.current = window.L.map(mapContainer.current).setView(caviteCenter, 10);
+
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 19,
+        }).addTo(map.current);
+
+        // Add markers for each organization
+        organizations.forEach((org) => {
+          // Create custom marker based on type
+          const markerIcon = window.L.divIcon({
+            className: 'custom-marker',
+            html: `<div style="width: 28px; height: 28px; background: ${org.color}; border: 3px solid white; border-radius: 50%; box-shadow: 0 3px 6px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;">
+              <div style="width: 8px; height: 8px; background: white; border-radius: 50%;"></div>
+            </div>`,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14],
           });
-          
-          el.addEventListener('mouseleave', () => {
-            el.style.transform = 'scale(1)';
-          });
 
-          // Create popup
-          const popup = new mapboxgl.Popup({ offset: 25, closeButton: false })
-            .setHTML(`
-              <div style="padding: 8px;">
-                <h3 style="font-weight: bold; color: hsl(30, 80%, 15%); margin-bottom: 4px;">${location.name}</h3>
-                <p style="font-size: 12px; color: hsl(30, 40%, 40%); margin-bottom: 8px;">
-                  ${location.type === 'city' ? 'City' : 'Municipality'}
-                </p>
-                <div style="font-size: 11px; color: hsl(30, 40%, 40%);">
-                  <strong>Programs:</strong>
-                  <ul style="margin: 4px 0 0 16px; padding: 0;">
-                    ${location.programs.map(p => `<li>${p}</li>`).join('')}
-                  </ul>
-                </div>
+          const marker = window.L.marker(
+            [org.coords.lat, org.coords.lng],
+            { icon: markerIcon }
+          ).addTo(map.current);
+
+          // Create popup content
+          const popupContent = `
+            <div style="padding: 12px; max-width: 300px; font-family: system-ui, -apple-system, sans-serif;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <div style="width: 12px; height: 12px; background: ${org.color}; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>
+                <h3 style="margin: 0; font-size: 16px; font-weight: bold; color: #1f2937;">
+                  ${org.name}
+                </h3>
               </div>
-            `);
+              <p style="margin: 0 0 12px 0; font-size: 13px; color: #6b7280; font-weight: 600;">
+                ${org.type}
+              </p>
+              <div style="font-size: 13px; color: #374151;">
+                <strong style="color: ${org.color};">Programs & Services:</strong>
+                <ul style="margin: 8px 0 0 0; padding-left: 20px; line-height: 1.6;">
+                  ${org.programs.map(p => `<li>${p}</li>`).join('')}
+                </ul>
+              </div>
+              ${org.note ? `<p style="margin-top: 8px; font-size: 11px; color: #6b7280; font-style: italic;">${org.note}</p>` : ''}
+            </div>
+          `;
 
-          // Add marker to map
-          new mapboxgl.Marker(el)
-            .setLngLat(location.coords as [number, number])
-            .setPopup(popup)
-            .addTo(map.current!);
+          marker.bindPopup(popupContent);
         });
-      });
 
-    } catch (error) {
-      console.error('Error initializing map:', error);
-    }
+        setIsLoading(false);
+        setIsMapLoaded(true);
+      } catch (error) {
+        console.error('Error initializing map:', error);
+        setIsLoading(false);
+      }
+    };
+
+    loadLeaflet();
 
     return () => {
-      map.current?.remove();
+      if (map.current) {
+        map.current.remove();
+      }
     };
-  }, [mapboxToken]);
-
-  if (showTokenInput) {
-    return (
-      <Card className="p-8 bg-card/40 backdrop-blur-xl border-primary/20">
-        <div className="flex flex-col items-center gap-4 max-w-md mx-auto">
-          <div className="flex items-center gap-2 text-primary">
-            <AlertCircle className="h-6 w-6" />
-            <h3 className="text-lg font-bold">Setup Required</h3>
-          </div>
-          
-          <p className="text-sm text-muted-foreground text-center">
-            To view the interactive Cavite map, you need a Mapbox public token. 
-            Get one free at <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">mapbox.com</a>
-          </p>
-          
-          <div className="w-full space-y-2">
-            <Input
-              type="text"
-              placeholder="Enter your Mapbox public token"
-              value={tokenInput}
-              onChange={(e) => setTokenInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleTokenSubmit()}
-              className="w-full"
-            />
-            <Button 
-              onClick={handleTokenSubmit}
-              className="w-full"
-              disabled={!tokenInput.trim()}
-            >
-              Load Map
-            </Button>
-          </div>
-        </div>
-      </Card>
-    );
-  }
+  }, []);
 
   return (
     <div className="relative w-full h-[600px] rounded-xl overflow-hidden">
-      <div ref={mapContainer} className="absolute inset-0" />
+      <div 
+        ref={mapContainer} 
+        className="absolute inset-0"
+        style={{ background: '#e5e7eb' }}
+      />
       
-      {/* Legend */}
-      <Card className="absolute bottom-4 left-4 p-4 bg-card/95 backdrop-blur-xl border-primary/20 z-10">
-        <div className="flex items-center gap-2 mb-2">
-          <MapPin className="h-4 w-4 text-primary" />
-          <span className="text-sm font-bold text-foreground">Feeding Programs in Cavite</span>
-        </div>
-        <div className="space-y-1 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-gradient-to-br from-primary to-accent"></div>
-            <span>Click markers for program details</span>
+      {/* Loading State */}
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-20">
+          <div className="text-center space-y-3">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="font-semibold text-foreground">Loading organizations map...</p>
+            <p className="text-sm text-muted-foreground">Mapping Cavite food security network</p>
           </div>
         </div>
-      </Card>
+      )}
+      
+      {/* Legend */}
+      {isMapLoaded && (
+        <Card className="absolute bottom-4 left-4 p-4 bg-card/95 backdrop-blur-xl border-primary/20 z-10 shadow-lg max-w-[280px]">
+          <div className="flex items-center gap-2 mb-3">
+            <Building2 className="h-4 w-4 text-primary" />
+            <span className="text-sm font-bold text-foreground">Organizations in Cavite</span>
+          </div>
+          <div className="space-y-2 text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#DAA325] border-2 border-white shadow"></div>
+              <span className="text-muted-foreground">DSWD Offices</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#10B981] border-2 border-white shadow"></div>
+              <span className="text-muted-foreground">LGU Programs</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#DC2626] border-2 border-white shadow"></div>
+              <span className="text-muted-foreground">Red Cross</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#EA580C] border-2 border-white shadow"></div>
+              <span className="text-muted-foreground">NGOs & Community Orgs</span>
+            </div>
+            <div className="mt-2 pt-2 border-t border-border">
+              <span className="text-muted-foreground italic">Click markers for details</span>
+            </div>
+          </div>
+        </Card>
+      )}
 
-      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-background/10 rounded-xl" />
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-background/5 rounded-xl" />
     </div>
   );
 };
