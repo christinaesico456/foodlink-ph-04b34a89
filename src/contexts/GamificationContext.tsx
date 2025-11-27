@@ -1,61 +1,119 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
-import confetti from 'canvas-confetti';
 
-interface Action {
+// Level Definitions - Each level = ₱100 donation when completed
+export const LEVELS = [
+  {
+    level: 1,
+    title: "Hunger Awareness Beginner",
+    pointsRequired: 100
+  },
+  {
+    level: 2,
+    title: "Community Explorer",
+    pointsRequired: 250
+  },
+  {
+    level: 3,
+    title: "Impact Contributor",
+    pointsRequired: 500
+  },
+  {
+    level: 4,
+    title: "Hunger Advocate",
+    pointsRequired: 850
+  },
+  {
+    level: 5,
+    title: "Zero Hunger Champion",
+    pointsRequired: 1500
+  }
+];
+
+// CONTINUOUS REPEATABLE TASKS - Users can do these anytime to earn points
+export const CONTINUOUS_TASKS = [
+  { id: "page_visit", title: "Visit a new page", points: 5, icon: "🏠", cooldown: 0 },
+  { id: "learn_fact", title: "Learn a hunger fact", points: 10, icon: "📖", cooldown: 0 },
+  { id: "view_org", title: "View an organization", points: 15, icon: "🏢", cooldown: 0 },
+  { id: "map_explore", title: "Explore the map", points: 20, icon: "🗺️", cooldown: 300000 }, // 5 min cooldown
+  { id: "share_content", title: "Share content", points: 30, icon: "📢", cooldown: 3600000 }, // 1 hour cooldown
+  { id: "read_article", title: "Read an article", points: 25, icon: "📰", cooldown: 0 },
+  { id: "watch_video", title: "Watch educational video", points: 35, icon: "🎥", cooldown: 0 },
+  { id: "form_interest", title: "Submit volunteer form", points: 50, icon: "✋", cooldown: 86400000 }, // 24 hour cooldown
+  { id: "download_resource", title: "Download a resource", points: 20, icon: "📚", cooldown: 0 },
+  { id: "leave_feedback", title: "Leave feedback/comment", points: 40, icon: "💭", cooldown: 3600000 }, // 1 hour cooldown
+];
+
+interface Task {
   id: string;
   title: string;
-  description: string;
-  impact: number;
+  points: number;
   icon: string;
+  cooldown: number;
 }
 
-interface ImpactData {
-  totalImpact: number;
+interface Level {
+  level: number;
+  title: string;
+  pointsRequired: number;
+}
+
+interface TaskCompletion {
+  taskId: string;
+  lastCompleted: number; // timestamp
+  count: number;
+}
+
+interface GamificationData {
+  currentLevel: number;
+  totalPoints: number;
+  taskCompletions: TaskCompletion[];
+  totalDonations: number;
+  lastVisitDate: string;
+  dayStreak: number;
   actionsToday: number;
   livesImpacted: number;
-  dayStreak: number;
-  lastVisitDate: string;
+  totalImpact: number;
 }
 
 interface GamificationContextType {
-  impactData: ImpactData;
-  todaysActions: Action[];
-  recordAction: (actionId: string, title: string, impact: number, icon: string) => void;
-  celebrateImpact: () => void;
+  data: GamificationData;
+  impactData: GamificationData; // Backward compatibility
+  currentLevelData: Level;
+  progressPercent: number;
+  completeTask: (taskId: string, points: number) => void;
+  recordAction: (actionId: string, title: string, impact: number, icon: string) => void; // Backward compatibility
+  celebrateLevel: () => void;
+  celebrateImpact: () => void; // Backward compatibility
+  getTaskStatus: (taskId: string) => { canComplete: boolean; cooldownRemaining: number };
+  todaysActions: any[]; // Backward compatibility
 }
 
 const GamificationContext = createContext<GamificationContextType | undefined>(undefined);
 
-const ACTIONS_CATALOG = {
-  page_visit: { base: 5, message: "Exploring hunger solutions" },
-  learn_fact: { base: 10, message: "Knowledge is power" },
-  view_org: { base: 15, message: "Connecting with changemakers" },
-  map_explore: { base: 20, message: "Discovering impact zones" },
-  form_interest: { base: 50, message: "Taking real action!" },
-  share_content: { base: 30, message: "Amplifying the cause" },
-};
-
 export const GamificationProvider = ({ children }: { children: ReactNode }) => {
-  const [impactData, setImpactData] = useState<ImpactData>({
-    totalImpact: 0,
+  const [data, setData] = useState<GamificationData>({
+    currentLevel: 1,
+    totalPoints: 0,
+    taskCompletions: [],
+    totalDonations: 0,
+    lastVisitDate: new Date().toDateString(),
+    dayStreak: 1,
     actionsToday: 0,
     livesImpacted: 0,
-    dayStreak: 0,
-    lastVisitDate: new Date().toDateString(),
+    totalImpact: 0,
   });
-
-  const [todaysActions, setTodaysActions] = useState<Action[]>([]);
 
   // Load from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('impact_data');
-    const savedActions = localStorage.getItem('todays_actions');
+    const saved = localStorage.getItem('gamification_data');
     const lastVisit = localStorage.getItem('last_visit_date');
 
     if (saved) {
-      const data = JSON.parse(saved);
+      const loadedData = JSON.parse(saved);
       const today = new Date().toDateString();
+      
+      loadedData.totalImpact = loadedData.totalPoints || loadedData.totalImpact || 0;
       
       // Check streak
       if (lastVisit) {
@@ -64,26 +122,14 @@ export const GamificationProvider = ({ children }: { children: ReactNode }) => {
         yesterday.setDate(yesterday.getDate() - 1);
         
         if (lastDate.toDateString() === yesterday.toDateString()) {
-          // Continuing streak
-          data.dayStreak = (data.dayStreak || 0) + 1;
+          loadedData.dayStreak = (loadedData.dayStreak || 0) + 1;
         } else if (lastDate.toDateString() !== today) {
-          // Reset streak
-          data.dayStreak = 1;
-          data.actionsToday = 0;
+          loadedData.dayStreak = 1;
+          loadedData.actionsToday = 0;
         }
       }
       
-      setImpactData(data);
-    }
-
-    if (savedActions) {
-      const actions = JSON.parse(savedActions);
-      const today = new Date().toDateString();
-      if (lastVisit === today) {
-        setTodaysActions(actions);
-      } else {
-        setTodaysActions([]);
-      }
+      setData(loadedData);
     }
 
     localStorage.setItem('last_visit_date', new Date().toDateString());
@@ -91,65 +137,163 @@ export const GamificationProvider = ({ children }: { children: ReactNode }) => {
 
   // Save to localStorage
   useEffect(() => {
-    localStorage.setItem('impact_data', JSON.stringify(impactData));
-    localStorage.setItem('todays_actions', JSON.stringify(todaysActions));
-  }, [impactData, todaysActions]);
+    localStorage.setItem('gamification_data', JSON.stringify(data));
+  }, [data]);
 
-  const celebrateImpact = () => {
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#daa325', '#38761d', '#e38637'],
-    });
+  const getCurrentLevelData = (): Level => {
+    return LEVELS[data.currentLevel - 1] || LEVELS[0];
   };
 
-  const recordAction = (actionId: string, title: string, impact: number, icon: string) => {
-    // Check if action already recorded today
-    const alreadyRecorded = todaysActions.some(a => a.id === actionId);
-    if (alreadyRecorded) return;
+  const getProgressPercent = (): number => {
+    const currentLevelData = getCurrentLevelData();
+    const previousLevelPoints = data.currentLevel > 1 ? LEVELS[data.currentLevel - 2].pointsRequired : 0;
+    const pointsInCurrentLevel = data.totalPoints - previousLevelPoints;
+    const pointsNeededForLevel = currentLevelData.pointsRequired - previousLevelPoints;
+    return Math.min(100, (pointsInCurrentLevel / pointsNeededForLevel) * 100);
+  };
 
-    const newAction: Action = {
-      id: actionId,
-      title,
-      description: ACTIONS_CATALOG[actionId as keyof typeof ACTIONS_CATALOG]?.message || "Making a difference",
-      impact,
-      icon,
-    };
+  const celebrateLevel = () => {
+    const colors = ['#daa325', '#38761d', '#e38637'];
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => {
+        const count = 100;
+        const defaults = { origin: { y: 0.7 } };
+        
+        function fire(particleRatio: number, opts: any) {
+          const confetti = (window as any).confetti;
+          if (confetti) {
+            confetti({
+              ...defaults,
+              ...opts,
+              particleCount: Math.floor(count * particleRatio),
+              colors: colors,
+            });
+          }
+        }
 
-    setTodaysActions(prev => [...prev, newAction]);
+        fire(0.25, { spread: 26, startVelocity: 55 });
+        fire(0.2, { spread: 60 });
+        fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+        fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+      }, i * 200);
+    }
+  };
 
-    setImpactData(prev => ({
-      ...prev,
-      totalImpact: prev.totalImpact + impact,
-      actionsToday: prev.actionsToday + 1,
-      livesImpacted: prev.livesImpacted + Math.floor(impact / 10),
-    }));
+  const getTaskStatus = (taskId: string) => {
+    const task = CONTINUOUS_TASKS.find(t => t.id === taskId);
+    if (!task) return { canComplete: true, cooldownRemaining: 0 };
 
-    // Show celebration for significant actions
-    if (impact >= 20) {
-      setTimeout(celebrateImpact, 300);
+    const completion = data.taskCompletions.find(c => c.taskId === taskId);
+    if (!completion) return { canComplete: true, cooldownRemaining: 0 };
+
+    const now = Date.now();
+    const timeSinceLastCompletion = now - completion.lastCompleted;
+    
+    if (timeSinceLastCompletion < task.cooldown) {
+      return {
+        canComplete: false,
+        cooldownRemaining: task.cooldown - timeSinceLastCompletion
+      };
     }
 
-    // Show toast notification
-    toast.success(
-      <div className="flex items-center gap-3">
-        <div className="text-3xl">{icon}</div>
-        <div>
-          <div className="font-bold">{title}</div>
-          <div className="text-sm text-muted-foreground">+{impact} impact points</div>
-        </div>
-      </div>,
-      { duration: 3000 }
-    );
+    return { canComplete: true, cooldownRemaining: 0 };
+  };
+
+  const completeTask = (taskId: string, points: number) => {
+    const taskStatus = getTaskStatus(taskId);
+    
+    if (!taskStatus.canComplete) {
+      const minutesRemaining = Math.ceil(taskStatus.cooldownRemaining / 60000);
+      const hoursRemaining = Math.ceil(taskStatus.cooldownRemaining / 3600000);
+      
+      const message = taskStatus.cooldownRemaining > 3600000
+        ? `Please wait ${hoursRemaining} hour(s) before doing this task again.`
+        : `Please wait ${minutesRemaining} minute(s) before doing this task again.`;
+        
+      toast.error(message, { duration: 3000 });
+      return;
+    }
+
+    // Update task completions
+    const existingCompletion = data.taskCompletions.find(c => c.taskId === taskId);
+    const newCompletions = existingCompletion
+      ? data.taskCompletions.map(c => 
+          c.taskId === taskId 
+            ? { ...c, lastCompleted: Date.now(), count: c.count + 1 }
+            : c
+        )
+      : [...data.taskCompletions, { taskId, lastCompleted: Date.now(), count: 1 }];
+
+    const newTotalPoints = data.totalPoints + points;
+    
+    let newLevel = data.currentLevel;
+    let newDonations = data.totalDonations;
+    let leveledUp = false;
+
+    // Check if level up
+    while (newLevel < LEVELS.length && newTotalPoints >= LEVELS[newLevel - 1].pointsRequired) {
+      newLevel++;
+      newDonations += 100;
+      leveledUp = true;
+    }
+
+    setData(prev => ({
+      ...prev,
+      totalPoints: newTotalPoints,
+      totalImpact: newTotalPoints,
+      taskCompletions: newCompletions,
+      currentLevel: newLevel,
+      totalDonations: newDonations,
+      actionsToday: prev.actionsToday + 1,
+      livesImpacted: prev.livesImpacted + Math.floor(points / 10),
+    }));
+
+    if (leveledUp) {
+      setTimeout(() => {
+        celebrateLevel();
+        toast.success(
+          <div className="flex items-center gap-3">
+            <div className="text-3xl">🎉</div>
+            <div>
+              <div className="font-bold">Level {newLevel} Reached!</div>
+              <div className="text-sm text-muted-foreground">₱{newDonations - data.totalDonations} donated to fight hunger!</div>
+            </div>
+          </div>,
+          { duration: 5000 }
+        );
+      }, 500);
+    } else {
+      const taskInfo = CONTINUOUS_TASKS.find(t => t.id === taskId);
+      toast.success(
+        <div className="flex items-center gap-3">
+          <div className="text-3xl">{taskInfo?.icon || "✅"}</div>
+          <div>
+            <div className="font-bold">Task Completed!</div>
+            <div className="text-sm text-muted-foreground">+{points} points • {newTotalPoints}/{getCurrentLevelData().pointsRequired}</div>
+          </div>
+        </div>,
+        { duration: 3000 }
+      );
+    }
+  };
+
+  // Backward compatibility function
+  const recordAction = (actionId: string, title: string, impact: number, icon: string) => {
+    completeTask(actionId, impact);
   };
 
   return (
     <GamificationContext.Provider value={{ 
-      impactData,
-      todaysActions,
-      recordAction,
-      celebrateImpact
+      data,
+      impactData: data, // Backward compatibility
+      currentLevelData: getCurrentLevelData(),
+      progressPercent: getProgressPercent(),
+      completeTask,
+      recordAction, // Backward compatibility
+      celebrateLevel,
+      celebrateImpact: celebrateLevel, // Backward compatibility
+      getTaskStatus,
+      todaysActions: [], // Backward compatibility
     }}>
       {children}
     </GamificationContext.Provider>

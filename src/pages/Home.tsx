@@ -104,7 +104,7 @@ const Home = () => {
       </section>
 
       {/* ================= STATS SECTION - FULL SCREEN ================= */}
-      <section className="relative min-h-screen flex items-center bg-gradient-to-r from-primary via-accent to-secondary overflow-hidden z-0">
+      <section className="relative min-h-screen flex items-center bg-gradient-to-r from-primary/30 via-accent/25 to-secondary/30 backdrop-blur-sm overflow-hidden z-0">
         
         {/* TOP FADE - Subtle blend */}
         <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-background to-transparent z-10 pointer-events-none"></div>
@@ -113,39 +113,43 @@ const Home = () => {
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none"></div>
         
         {/* Background Pattern */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZS13aWR0aD0iMiIvPjwvZz48L3N2Zz4=')] opacity-10 animate-pulse"></div>
+        <div className="absolute inset-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZS13aWR0aD0iMiIvPjwvZz48L3N2Zz4=')] opacity-20 animate-pulse"></div>
         
-        <div className="w-full px-8 md:px-16 lg:px-20 relative z-20">
-          <div className="max-w-[1800px] mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {statsData.map((stat, i) => {
-              const hoverBgClass = `hover:bg-${stat.hoverColor}/50`;
-              const hoverGlowClass = `bg-${stat.hoverColor}/20`;
-              const hoverIconClass = `group-hover/card:text-${stat.hoverColor}`;
+  <div className="w-full px-8 md:px-16 lg:px-20 relative z-20">
+    <div className="max-w-[1800px] mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {statsData.map((stat, i) => {
+        const hoverBgClass = `hover:bg-${stat.hoverColor}/40`
+        const hoverGlowClass = `bg-${stat.hoverColor}/20`
+        const hoverIconClass = `group-hover/card:text-${stat.hoverColor}`
+
+        return (
+          <div key={i} className="relative group/card">
+            <div className={`h-full flex flex-col items-center justify-center text-center p-8 lg:p-10 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg transition-all duration-300 hover:-translate-y-2 ${hoverBgClass} hover:shadow-2xl`}>
+              <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 ${hoverGlowClass} rounded-full blur-2xl opacity-0 group-hover/card:opacity-100 transition-opacity duration-500`}></div>
               
-              return (
-                <div key={i} className="relative group/card">
-                  <div className={`h-full flex flex-col items-center justify-center text-center p-8 lg:p-10 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg transition-all duration-300 hover:-translate-y-2 ${hoverBgClass} hover:shadow-2xl`}>
-                    <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 ${hoverGlowClass} rounded-full blur-2xl opacity-0 group-hover/card:opacity-100 transition-opacity duration-500`}></div>
-                    <div className="relative mb-6 p-4 rounded-full bg-white group-hover/card:bg-background group-hover/card:scale-110 group-hover/card:rotate-6 transition-all duration-300">
-                      <stat.icon className={`h-8 w-8 text-foreground ${hoverIconClass}`} />
-                    </div>
-                    <div className="text-3xl lg:text-4xl xl:text-5xl font-black text-foreground mb-2 tracking-tight">
-                      <AnimatedCounter value={stat.value} />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-sm lg:text-base font-bold text-foreground/80">{stat.label}</div>
-                      <div className="text-xs font-medium text-foreground/60">{stat.sub}</div>
-                    </div>
-                    <div className="mt-6 text-xs text-foreground/80 font-medium uppercase tracking-wider">
-                      Source: {stat.source}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+              <div className="relative mb-6 p-4 rounded-full bg-white group-hover/card:bg-background group-hover/card:scale-110 group-hover/card:rotate-6 transition-all duration-300">
+                <stat.icon className={`h-8 w-8 text-foreground ${hoverIconClass}`} />
+              </div>
+
+              <div className="text-3xl lg:text-4xl xl:text-5xl font-black text-foreground mb-2 tracking-tight">
+                <AnimatedCounter value={stat.value} />
+              </div>
+
+              <div className="space-y-1">
+                <div className="text-sm lg:text-base font-bold text-foreground/80">{stat.label}</div>
+                <div className="text-xs font-medium text-foreground/60">{stat.sub}</div>
+              </div>
+
+              <div className="mt-6 text-xs text-foreground/80 font-medium uppercase tracking-wider">
+                Source: {stat.source}
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        );
+      })}
+    </div>
+  </div>
+</section>
 
      {/* ================= MISSION SECTION - FULL SCREEN ================= */}
       <section className="relative min-h-screen flex items-center overflow-hidden z-10">
