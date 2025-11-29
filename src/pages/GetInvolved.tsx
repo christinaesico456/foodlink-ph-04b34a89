@@ -55,7 +55,8 @@ const getColorStyle = (colorType) => {
 };
 
 const GetInvolved = () => {
-  const { recordAction } = useGamification();
+  // ✅ FIXED: Changed from recordAction to completeTask
+  const { completeTask } = useGamification();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
@@ -67,12 +68,14 @@ const GetInvolved = () => {
   });
 
   useEffect(() => {
-    recordAction('page_visit', 'Exploring Ways to Help', 5, '💪');
+    // ✅ FIXED: Just pass the task ID
+    completeTask('page_visit');
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    recordAction('form_interest', 'Submitted Volunteer Form', 50, '🎯');
+    // ✅ FIXED: Use completeTask for form submission
+    completeTask('volunteer_form');
     toast({
       title: "Thank you for your interest!",
       description: "We'll get back to you soon about volunteer opportunities.",
@@ -203,7 +206,7 @@ const GetInvolved = () => {
                 <Card
                   key={index}
                   className="group relative overflow-hidden bg-white/40 backdrop-blur-xl border border-white/50 p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer"
-                  onClick={() => recordAction('page_visit', `Explored ${card.title}`, 10, '❤️')}
+                  onClick={() => completeTask('page_visit')}
                 >
                   {/* Hover Glow */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${styles.glow} to-transparent opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>

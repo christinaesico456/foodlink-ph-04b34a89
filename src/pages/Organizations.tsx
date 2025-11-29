@@ -16,10 +16,12 @@ const getColorStyle = (colorType) => {
 };
 
 const Organizations = () => {
-  const { recordAction } = useGamification();
+  // ✅ FIXED: Changed from recordAction to completeTask
+  const { completeTask } = useGamification();
 
   useEffect(() => {
-    recordAction('view_org', 'Discovered Organizations', 15, '🏢');
+    // ✅ FIXED: Just pass the task ID
+    completeTask('view_org');
   }, []);
 
   const organizations = [
@@ -86,7 +88,7 @@ const Organizations = () => {
     <div className="bg-background">
       
       {/* ================= HERO SECTION ================= */}
-      <section className="relative min-h-500px] lg:min-h-[600px] flex items-center overflow-hidden">
+      <section className="relative min-h-[500px] lg:min-h-[600px] flex items-center overflow-hidden">
         
         {/* Background Gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5"></div>
@@ -121,7 +123,7 @@ const Organizations = () => {
         {/* Top Blender Fade */}
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background via-background/60 to-transparent pointer-events-none"></div>
 
-        <div className="container mx-auto px-6 md:px-80 relative z-10">
+        <div className="container mx-auto px-6 md:px-12 relative z-10">
           {/* Section Header */}
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-4xl md:text-5xl font-black text-foreground">
@@ -157,7 +159,8 @@ const Organizations = () => {
                   key={index}
                   className="group relative overflow-hidden bg-white/40 backdrop-blur-xl border border-white/50 p-8 hover:shadow-2xl hover:border-primary/30 transition-all duration-500 hover:-translate-y-2 cursor-pointer"
                   onClick={() => {
-                    recordAction('view_org', `Viewed ${org.name}`, 10, '🏢');
+                    // ✅ FIXED: Use completeTask instead of recordAction
+                    completeTask('view_org');
                     if (org.website) window.open(org.website, '_blank');
                   }}
                 >

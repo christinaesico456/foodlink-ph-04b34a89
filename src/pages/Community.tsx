@@ -17,10 +17,12 @@ const getColorStyle = (colorType) => {
 };
 
 const Community = () => {
-  const { recordAction } = useGamification();
+  // ✅ FIXED: Changed from recordAction to completeTask
+  const { completeTask } = useGamification();
 
   useEffect(() => {
-    recordAction("page_visit", "Explored Community Stories", 5, "🌍");
+    // ✅ FIXED: Just pass the task ID
+    completeTask("page_visit");
   }, []);
 
   const stories = [
@@ -104,7 +106,7 @@ const Community = () => {
               <span className="text-primary">Stories</span>
             </h1>
 
-            <p className="text-based md:text-xl text-muted-foreground leading-relaxed max-w-2xl">
+            <p className="text-base md:text-xl text-muted-foreground leading-relaxed max-w-2xl">
               Verified success stories and initiatives from government agencies, NGOs, and grassroots movements actively fighting hunger in Cavite.
             </p>
           </div>
@@ -187,7 +189,7 @@ const Community = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="relative z-[5] pointer-events-auto inline-flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors group/link"
-                            onClick={() => recordAction("share_content", "Visited Source", 10, "🔗")}
+                            onClick={() => completeTask("case_study")}
                           >
                             Read Full Story
                             <ArrowRight className="h-4 w-4 transition-transform group-hover/link:translate-x-1" />

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import CriseldaImg from "@/assets/Criselda.jpg";
 import KurtImg from "@/assets/Kurt.jpg";
 import ChristinaImg from "@/assets/Christina.jpg";
+import FoodlinkLogo from "@/assets/Foodlink_logo.png";
 
 
 const Footer = () => {
@@ -27,20 +28,24 @@ const Footer = () => {
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-16">
           
-          {/* Column 1: Brand Info */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">F</span>
-              </div>
-              <span className="text-2xl font-black text-foreground">FoodLink PH</span>
-            </div>
-            
-            <p className="text-muted-foreground leading-relaxed text-sm max-w-xs">
-              Connecting communities to fight hunger. We ensure every Filipino has access 
-              to nutritious food through technology and cooperation.
-            </p>
-          </div>
+ {/* Column 1: Brand Info */}
+<div className="space-y-6">
+  <div className="flex items-center gap-2">
+    <img 
+      src={FoodlinkLogo}
+      alt="FoodLink PH Logo"
+      className="w-10 h-10 rounded-md object-cover shadow-sm"
+    />
+    <span className="text-2xl font-black text-foreground">
+      FoodLink <span className="text-primary">PH</span>
+    </span>
+  </div>
+
+  <p className="text-muted-foreground leading-relaxed text-sm max-w-xs">
+    Connecting communities to fight hunger. We ensure every Filipino has access 
+    to nutritious food through technology and cooperation.
+  </p>
+</div>
 
           {/* Column 2: Company Links */}
           <div>

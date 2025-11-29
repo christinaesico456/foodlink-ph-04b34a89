@@ -15,7 +15,8 @@ interface Question {
 }
 
 const Quiz = () => {
-  const { recordAction } = useGamification();
+  // ✅ FIXED: Changed from recordAction to completeTask
+  const { completeTask } = useGamification();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [showScore, setShowScore] = useState(false);
@@ -24,7 +25,8 @@ const Quiz = () => {
   const [answeredQuestions, setAnsweredQuestions] = useState<boolean[]>([]);
 
   useEffect(() => {
-    recordAction('page_visit', 'Started Knowledge Quiz', 5, '🧠');
+    // ✅ FIXED: Just pass the task ID
+    completeTask('quick_quiz');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -109,7 +111,8 @@ const Quiz = () => {
     
     if (isCorrect) {
       setScore(score + 1);
-      recordAction('learn_fact', 'Answered Correctly', 15, '✅');
+      // ✅ FIXED: Use completeTask for correct answers
+      completeTask('learn_fact');
       toast.success("Correct Answer!");
     } else {
       toast.error("Incorrect Answer");
@@ -127,10 +130,11 @@ const Quiz = () => {
       setSelectedAnswer(null);
     } else {
       setShowScore(true);
+      // ✅ FIXED: Reward completion based on score
       if (score >= 7) {
-        recordAction('learn_fact', 'Completed Quiz - Expert', 50, '🏆');
+        completeTask('complete_series'); // High score bonus
       } else {
-        recordAction('learn_fact', 'Completed Quiz', 30, '📚');
+        completeTask('quick_quiz'); // Completion reward
       }
     }
   };
@@ -163,7 +167,7 @@ const Quiz = () => {
               Hunger <span className="text-primary">Knowledge</span> Quiz
             </h1>
             
-            <p className="text-based text-muted-foreground max-w-xl mx-auto">
+            <p className="text-base text-muted-foreground max-w-xl mx-auto">
               Challenge yourself with facts about hunger in the Philippines and learn how you can be part of the solution.
             </p>
           </div>
@@ -178,19 +182,14 @@ const Quiz = () => {
 
         <div className="container mx-auto px-4 relative z-10">
           
-          {/* CHANGED: Reduced width from 'max-w-3xl' to 'max-w-xl' */}
           <div className="max-w-xl mx-auto">
             
             {!showScore ? (
-              <Card className="relative overflow-hidden bg-white/40 backdrop-blur-xl border border-white/50 shadow-2xl rounded-3xl 
-                p-6 md:p-8" 
-                /* CHANGED: Reduced padding from 'p-6 md:p-10' to 'p-6 md:p-8' */
-              >
+              <Card className="relative overflow-hidden bg-white/40 backdrop-blur-xl border border-white/50 shadow-2xl rounded-3xl p-6 md:p-8">
                 {/* Decorative Glow */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
 
                 {/* Progress Bar */}
-                {/* CHANGED: Reduced bottom margin from 'mb-8' to 'mb-6' */}
                 <div className="mb-6 relative z-10">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
@@ -204,7 +203,6 @@ const Quiz = () => {
                 </div>
 
                 {/* Question */}
-                {/* CHANGED: Removed min-height constraint to fit content tightly */}
                 <div className="mb-6 relative z-10">
                   <h2 className="text-xl md:text-2xl font-bold text-foreground leading-snug">
                     {questions[currentQuestion].question}
@@ -218,7 +216,6 @@ const Quiz = () => {
                       key={index}
                       onClick={() => handleAnswerClick(index)}
                       disabled={selectedAnswer !== null}
-                      /* CHANGED: Reduced padding from 'p-5' to 'p-4' */
                       className={`w-full p-4 text-left rounded-xl border-2 transition-all duration-300 relative overflow-hidden group ${
                         selectedAnswer === null
                           ? 'border-border/50 bg-white/50 hover:border-primary/50 hover:bg-primary/5 hover:scale-[1.01] hover:shadow-md'
@@ -247,7 +244,6 @@ const Quiz = () => {
                     </button>
                   ))}
                 </div>
-
 
                 {/* Explanation / Footer */}
                 <div className={`transition-all duration-500 ease-in-out overflow-hidden ${selectedAnswer !== null ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>

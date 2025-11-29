@@ -3,6 +3,8 @@ import { Link, useLocation } from "react-router-dom"; // Switched to standard Li
 import { Button } from "@/components/ui/button";
 import { Menu, X, Wheat, ArrowRight, HeartHandshake } from "lucide-react";
 import { cn } from "@/lib/utils";
+import FoodLinkLogo from "@/assets/Foodlink_logo.png";
+
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,16 +46,19 @@ const Navigation = () => {
         <div className="flex items-center justify-between">
           
           {/* --- LOGO --- */}
-          <Link to="/" className="flex items-center gap-2 group relative z-50">
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/25 transition-transform group-hover:scale-105 group-hover:-rotate-3">
-              <Wheat className="h-6 w-6" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-xl leading-none tracking-tight text-foreground">
-                FoodLink<span className="text-primary">PH</span>
-              </span>
-            </div>
-          </Link>
+<Link to="/" className="flex items-center gap-3 group relative z-50">
+  <img
+    src={FoodLinkLogo}
+    alt="FoodLinkPH Logo"
+    className="w-10 h-10 object-contain rounded-lg shadow-lg shadow-primary/20 transition-transform group-hover:scale-105"
+  />
+
+  <div className="flex flex-col">
+    <span className="font-bold text-xl leading-none tracking-tight text-foreground">
+      FoodLink<span className="text-primary">PH</span>
+    </span>
+  </div>
+</Link>
 
           {/* --- DESKTOP MENU --- */}
           <div className="hidden md:flex items-center gap-2">

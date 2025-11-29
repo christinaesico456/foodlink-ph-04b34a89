@@ -38,10 +38,12 @@ const AnimatedCounter = ({ value, duration = 2000 }) => {
 };
 
 const About = () => {
-  const { recordAction } = useGamification();
+  // ✅ FIXED: Changed from recordAction to completeTask
+  const { completeTask } = useGamification();
 
   useEffect(() => {
-    recordAction("learn_fact", "Learning About Hunger", 10, "📚");
+    // ✅ FIXED: Just pass the task ID
+    completeTask("learn_fact");
   }, []);
 
   const hungerFacts = [
@@ -49,7 +51,7 @@ const About = () => {
       icon: AlertCircle,
       stat: "10.9%",
       label: "Filipinos experience food insecurity",
-      description: "Based on PSA’s national food insecurity report.",
+      description: "Based on PSA's national food insecurity report.",
       color: "text-primary",
       bg: "bg-primary/10",
       source: "Philippine Statistics Authority, 2021"
@@ -147,8 +149,8 @@ const About = () => {
             {hungerFacts.map((fact, i) => (
               <Card
                 key={i}
-                className={`p-8 border border-border bg-white hover:shadow-xl transition-all rounded-2xl`}
-                onClick={() => recordAction("learn_fact", "Read Hunger Fact", 5, "📊")}
+                className={`p-8 border border-border bg-white hover:shadow-xl transition-all rounded-2xl cursor-pointer`}
+                onClick={() => completeTask("learn_fact")}
               >
                 <div className="text-center space-y-4">
                   <div className={`inline-flex p-4 rounded-full ${fact.bg}`}>
@@ -190,8 +192,8 @@ const About = () => {
             {solutions.map((sol, i) => (
               <Card
                 key={i}
-                className="p-8 border border-border bg-white hover:shadow-xl transition rounded-2xl relative overflow-hidden"
-                onClick={() => recordAction("learn_fact", "Explored Solution", 5, "💡")}
+                className="p-8 border border-border bg-white hover:shadow-xl transition rounded-2xl relative overflow-hidden cursor-pointer"
+                onClick={() => completeTask("learn_fact")}
               >
                 <div className={`absolute inset-0 bg-gradient-to-br ${sol.gradient} opacity-60`}></div>
 
