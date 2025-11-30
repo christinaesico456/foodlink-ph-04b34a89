@@ -73,7 +73,7 @@ const Home = () => {
                 <span className="text-sm font-bold text-primary">SDG 2: Zero Hunger</span>
               </div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black leading-tight text-foreground">
-                Together<br /><span className="text-primary">we nourish every</span><br />Filipino's tomorrow
+                Connecting<br /><span className="text-primary">Communities</span><br />to Fight Hunger
               </h1>
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-xl">
                 Join the movement to end hunger in the Philippines. Together, we can ensure 
