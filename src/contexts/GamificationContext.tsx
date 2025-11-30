@@ -1,4 +1,6 @@
+// src/contexts/GamificationContext.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useAuth } from './AuthContext';
 
 // Level Definitions - Progressive difficulty with meaningful milestones
 export const LEVELS = [
@@ -13,7 +15,6 @@ export const LEVELS = [
 
 // TASK CATEGORIES - More diverse and challenging tasks
 export const TASK_POOL = {
-  // Quick Actions (5-15 points, short cooldowns)
   quick: [
     { id: "page_visit", title: "Explore a program page", points: 8, icon: "🏠", cooldown: 0, category: "Navigation" },
     { id: "learn_fact", title: "Read a hunger statistic", points: 10, icon: "📊", cooldown: 0, category: "Education" },
@@ -23,7 +24,6 @@ export const TASK_POOL = {
     { id: "quick_quiz", title: "Take a 3-question quiz", points: 20, icon: "🎯", cooldown: 1800000, category: "Learning" },
   ],
   
-  // Medium Tasks (20-40 points, moderate time investment)
   medium: [
     { id: "read_article", title: "Read full article (2+ min)", points: 30, icon: "📖", cooldown: 0, category: "Deep Learning" },
     { id: "watch_video", title: "Watch educational video", points: 35, icon: "🎥", cooldown: 0, category: "Media" },
@@ -34,7 +34,6 @@ export const TASK_POOL = {
     { id: "interactive_tool", title: "Use hunger calculator", points: 38, icon: "🧮", cooldown: 7200000, category: "Tools" },
   ],
   
-  // Engagement Tasks (40-60 points, requires active participation)
   engagement: [
     { id: "leave_feedback", title: "Write detailed feedback (50+ words)", points: 50, icon: "💭", cooldown: 7200000, category: "Feedback" },
     { id: "share_social", title: "Share content on social media", points: 45, icon: "📢", cooldown: 14400000, category: "Advocacy" },
@@ -43,7 +42,6 @@ export const TASK_POOL = {
     { id: "attend_webinar", title: "Register for virtual event", points: 50, icon: "🎓", cooldown: 604800000, category: "Events" },
   ],
   
-  // High Impact (60-100 points, significant commitment)
   highImpact: [
     { id: "volunteer_form", title: "Complete volunteer application", points: 80, icon: "✋", cooldown: 172800000, category: "Volunteering" },
     { id: "donation_intent", title: "Submit donation interest form", points: 100, icon: "💝", cooldown: 259200000, category: "Support" },
@@ -52,7 +50,6 @@ export const TASK_POOL = {
     { id: "partnership_inquiry", title: "Submit partnership proposal", points: 150, icon: "🤝", cooldown: 1209600000, category: "Collaboration" },
   ],
   
-  // Daily/Weekly Specials (bonus points)
   special: [
     { id: "daily_login", title: "Daily visit bonus", points: 20, icon: "🌅", cooldown: 86400000, category: "Consistency" },
     { id: "weekend_warrior", title: "Weekend engagement bonus", points: 40, icon: "🎊", cooldown: 604800000, category: "Special" },
@@ -103,22 +100,11 @@ interface GamificationContextType {
 
 const GamificationContext = createContext<GamificationContextType | undefined>(undefined);
 
-// Generate unique user ID
-const getUserId = () => {
-  let userId = localStorage.getItem('user_id');
-  if (!userId) {
-    userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem('user_id', userId);
-  }
-  return userId;
-};
-
 // Select random tasks from pool for daily rotation
 const generateDailyTasks = (userId: string, date: string): string[] => {
   const seed = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + 
                new Date(date).getDate();
   
-  // ✅ FIXED: Create separate shuffled arrays for each category
   let currentSeed = seed;
   
   const shuffleArray = (array: Task[]) => {
@@ -128,14 +114,12 @@ const generateDailyTasks = (userId: string, date: string): string[] => {
     });
   };
   
-  // Shuffle each category independently
   const shuffledQuick = shuffleArray(TASK_POOL.quick).slice(0, 3);
   const shuffledMedium = shuffleArray(TASK_POOL.medium).slice(0, 4);
   const shuffledEngagement = shuffleArray(TASK_POOL.engagement).slice(0, 3);
   const shuffledHighImpact = shuffleArray(TASK_POOL.highImpact).slice(0, 2);
   const shuffledSpecial = shuffleArray(TASK_POOL.special).slice(0, 1);
   
-  // Return just the IDs
   return [
     ...shuffledQuick.map(t => t.id),
     ...shuffledMedium.map(t => t.id),
@@ -146,8 +130,8 @@ const generateDailyTasks = (userId: string, date: string): string[] => {
 };
 
 export const GamificationProvider = ({ children }: { children: ReactNode }) => {
+  const { user } = useAuth();
   const [data, setData] = useState<GamificationData>(() => {
-    const userId = getUserId();
     const today = new Date().toDateString();
     
     return {
@@ -160,44 +144,71 @@ export const GamificationProvider = ({ children }: { children: ReactNode }) => {
       actionsToday: 0,
       livesImpacted: 0,
       totalImpact: 0,
-      userId,
-      dailyTaskRotation: generateDailyTasks(userId, today),
+      userId: '',
+      dailyTaskRotation: [],
       rotationDate: today,
     };
   });
 
+  // Load user data when authenticated
   useEffect(() => {
-    const saved = localStorage.getItem('gamification_data_v2');
-    if (saved) {
-      const loadedData = JSON.parse(saved);
-      const today = new Date().toDateString();
+    if (user) {
+      const storageKey = `gamification_data_${user.uid}`;
+      const saved = localStorage.getItem(storageKey);
       
-      if (loadedData.rotationDate !== today) {
-        loadedData.dailyTaskRotation = generateDailyTasks(loadedData.userId, today);
-        loadedData.rotationDate = today;
-        loadedData.actionsToday = 0;
-      }
-      
-      if (loadedData.lastVisitDate) {
-        const lastDate = new Date(loadedData.lastVisitDate);
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
+      if (saved) {
+        const loadedData = JSON.parse(saved);
+        const today = new Date().toDateString();
         
-        if (lastDate.toDateString() === yesterday.toDateString()) {
-          loadedData.dayStreak = (loadedData.dayStreak || 0) + 1;
-        } else if (lastDate.toDateString() !== today) {
-          loadedData.dayStreak = 1;
+        if (loadedData.rotationDate !== today) {
+          loadedData.dailyTaskRotation = generateDailyTasks(user.uid, today);
+          loadedData.rotationDate = today;
+          loadedData.actionsToday = 0;
         }
+        
+        if (loadedData.lastVisitDate) {
+          const lastDate = new Date(loadedData.lastVisitDate);
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          
+          if (lastDate.toDateString() === yesterday.toDateString()) {
+            loadedData.dayStreak = (loadedData.dayStreak || 0) + 1;
+          } else if (lastDate.toDateString() !== today) {
+            loadedData.dayStreak = 1;
+          }
+        }
+        
+        loadedData.lastVisitDate = today;
+        loadedData.userId = user.uid;
+        setData(loadedData);
+      } else {
+        // Initialize new user data
+        const today = new Date().toDateString();
+        setData({
+          currentLevel: 1,
+          totalPoints: 0,
+          taskCompletions: [],
+          totalDonations: 0,
+          lastVisitDate: today,
+          dayStreak: 1,
+          actionsToday: 0,
+          livesImpacted: 0,
+          totalImpact: 0,
+          userId: user.uid,
+          dailyTaskRotation: generateDailyTasks(user.uid, today),
+          rotationDate: today,
+        });
       }
-      
-      loadedData.lastVisitDate = today;
-      setData(loadedData);
     }
-  }, []);
+  }, [user]);
 
+  // Save data when it changes
   useEffect(() => {
-    localStorage.setItem('gamification_data_v2', JSON.stringify(data));
-  }, [data]);
+    if (user && data.userId) {
+      const storageKey = `gamification_data_${user.uid}`;
+      localStorage.setItem(storageKey, JSON.stringify(data));
+    }
+  }, [data, user]);
 
   const getCurrentLevelData = () => {
     return LEVELS[data.currentLevel - 1] || LEVELS[0];
@@ -240,6 +251,8 @@ export const GamificationProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const completeTask = (taskId: string) => {
+    if (!user) return;
+    
     const allTasks = Object.values(TASK_POOL).flat();
     const task = allTasks.find(t => t.id === taskId);
     if (!task) return;
@@ -278,10 +291,12 @@ export const GamificationProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const refreshDailyTasks = () => {
+    if (!user) return;
+    
     const today = new Date().toDateString();
     setData(prev => ({
       ...prev,
-      dailyTaskRotation: generateDailyTasks(prev.userId, today),
+      dailyTaskRotation: generateDailyTasks(user.uid, today),
       rotationDate: today,
     }));
   };

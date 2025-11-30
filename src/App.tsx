@@ -1,8 +1,10 @@
+// src/App.tsx
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
 import { GamificationProvider } from "./contexts/GamificationContext";
 import Navigation from "./components/Navigation";
 import GamificationBar from "./components/GamificationBar";
@@ -19,26 +21,28 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <GamificationProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Navigation />
-          <GamificationBar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/organizations" element={<Organizations />} />
-            <Route path="/get-involved" element={<GetInvolved />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/quiz" element={<Quiz />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Footer />
-        </BrowserRouter>
-      </TooltipProvider>
-    </GamificationProvider>
+    <AuthProvider>
+      <GamificationProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Navigation />
+            <GamificationBar />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/organizations" element={<Organizations />} />
+              <Route path="/get-involved" element={<GetInvolved />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/quiz" element={<Quiz />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Footer />
+          </BrowserRouter>
+        </TooltipProvider>
+      </GamificationProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

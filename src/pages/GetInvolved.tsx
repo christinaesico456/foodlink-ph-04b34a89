@@ -3,11 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { HandHeart, Users, DollarSign, Share2, Heart, Megaphone, CheckCircle } from "lucide-react";
+import { HandHeart, Users, PhilippinePeso, Share2, Heart, Megaphone, CheckCircle, X, ExternalLink } from "lucide-react";
 import { useGamification } from "@/contexts/GamificationContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { db } from "@/firebase/config";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import volunteersImg from "@/assets/volunteers.jpg";
+import qrFoodlink from "@/assets/qr_foodlink.jpg";
 
 // --- ANIMATED COUNTER HELPER ---
 const AnimatedCounter = ({ value, duration = 2000 }) => {
@@ -55,9 +59,11 @@ const getColorStyle = (colorType) => {
 };
 
 const GetInvolved = () => {
-  // ✅ FIXED: Changed from recordAction to completeTask
-  const { completeTask } = useGamification();
+  const { completeTask, data } = useGamification();
+  const { user } = useAuth();
   const { toast } = useToast();
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -68,26 +74,106 @@ const GetInvolved = () => {
   });
 
   useEffect(() => {
-    // ✅ FIXED: Just pass the task ID
     completeTask('page_visit');
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // ✅ FIXED: Use completeTask for form submission
-    completeTask('volunteer_form');
+    setIsSubmitting(true);
+
+    try {
+      console.log("Starting form submission...");
+      
+      // Save to Firebase Firestore with timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Submission timeout - check Firebase setup')), 10000)
+      );
+
+      const submitPromise = addDoc(collection(db, "volunteers"), {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        location: formData.location,
+        interest: formData.interest,
+        message: formData.message,
+        submittedAt: serverTimestamp(),
+        userId: user?.uid || null,
+        userEmail: user?.email || null,
+        status: "pending"
+      });
+
+      await Promise.race([submitPromise, timeoutPromise]);
+
+      console.log("Form submitted successfully!");
+
+      // Complete gamification task
+      completeTask('volunteer_form');
+
+      // Show success message
+      toast({
+        title: "Thank you for your interest!",
+        description: "We'll get back to you soon about volunteer opportunities.",
+      });
+
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        location: "",
+        interest: "",
+        message: ""
+      });
+    } catch (error: any) {
+      console.error("Error submitting volunteer form:", error);
+      
+      let errorMessage = "There was an error submitting your application. Please try again.";
+      
+      if (error.message?.includes('timeout')) {
+        errorMessage = "Submission timeout. Please check your internet connection and Firebase setup.";
+      } else if (error.code === 'permission-denied') {
+        errorMessage = "Permission denied. Please check Firestore security rules.";
+      } else if (error.code === 'unavailable') {
+        errorMessage = "Firebase service unavailable. Please try again later.";
+      }
+      
+      toast({
+        title: "Submission Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // ✅ Scroll to volunteer form
+  const scrollToVolunteerForm = () => {
+    const formSection = document.getElementById('volunteer-form-section');
+    if (formSection) {
+      formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // ✅ Open QR modal
+  const openQRModal = () => {
+    setShowQRModal(true);
+    completeTask('donation_intent');
+  };
+
+  // ✅ Share on Facebook
+  const shareOnFacebook = () => {
+    window.open('https://www.facebook.com/profile.php?id=61584312566690', '_blank');
+    completeTask('share_social');
+  };
+
+  // ✅ Take advocacy action
+  const takeAdvocacyAction = () => {
     toast({
-      title: "Thank you for your interest!",
-      description: "We'll get back to you soon about volunteer opportunities.",
+      title: "Advocacy Resources",
+      description: "Contact your local officials and support hunger relief policies!",
     });
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      location: "",
-      interest: "",
-      message: ""
-    });
+    completeTask('create_plan');
   };
 
   const actionCards = [
@@ -102,10 +188,11 @@ const GetInvolved = () => {
         "Food sorting and packaging at local warehouses"
       ],
       action: "Sign Up to Volunteer",
-      color: "primary"
+      color: "primary",
+      onClick: scrollToVolunteerForm
     },
     {
-      icon: DollarSign,
+      icon: PhilippinePeso,
       title: "Donate",
       description: "Support local feeding programs serving 50,000+ Caviteños monthly. Every ₱50 provides a nutritious meal for a child in need.",
       details: [
@@ -115,7 +202,8 @@ const GetInvolved = () => {
         "₱10,000 = Community feeding program for 200 people"
       ],
       action: "Learn About Donations",
-      color: "secondary"
+      color: "secondary",
+      onClick: openQRModal
     },
     {
       icon: Share2,
@@ -128,7 +216,8 @@ const GetInvolved = () => {
         "Organize awareness campaigns in schools and workplaces"
       ],
       action: "Share on Social Media",
-      color: "accent"
+      color: "accent",
+      onClick: shareOnFacebook
     },
     {
       icon: Megaphone,
@@ -141,16 +230,103 @@ const GetInvolved = () => {
         "Support local farmers and sustainable agriculture policies"
       ],
       action: "Take Action",
-      color: "earth"
+      color: "earth",
+      onClick: takeAdvocacyAction
     }
   ];
 
   return (
     <div className="bg-background">
       
+      {/* ================= QR CODE MODAL ================= */}
+      {showQRModal && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setShowQRModal(false)}
+        >
+          <div 
+            className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setShowQRModal(false)}
+              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors z-10"
+            >
+              <X className="h-4 w-4 text-gray-600" />
+            </button>
+
+            {/* Header */}
+            <div className="text-center mb-4">
+              <div className="inline-flex p-3 bg-secondary/10 rounded-full mb-3">
+                <PhilippinePeso className="h-8 w-8 text-secondary" />
+              </div>
+              <h3 className="text-2xl font-black text-foreground mb-1">
+                Support Our Mission
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Every peso helps fight hunger in Cavite
+              </p>
+            </div>
+
+            {/* Donation Drive Progress */}
+            <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl p-3 mb-4 border border-primary/20">
+              <div className="text-center">
+                <p className="text-xs font-semibold text-muted-foreground mb-0.5">
+                  🎯 Donation Drive Progress
+                </p>
+                <p className="text-3xl font-black text-primary mb-0.5">
+                  ₱{data.totalDonations}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  Generated through community engagement
+                </p>
+              </div>
+            </div>
+
+            {/* QR Code */}
+            <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-border flex justify-center">
+              <img 
+                src={qrFoodlink} 
+                alt="GCash QR Code" 
+                className="w-64 h-64 object-contain rounded-lg shadow-md"
+              />
+            </div>
+
+            {/* Instructions */}
+            <div className="space-y-2 mb-4">
+              <div className="flex items-start gap-2">
+                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-[10px] font-bold text-primary">1</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Open your GCash app</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-[10px] font-bold text-primary">2</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Scan the QR code above</p>
+              </div>
+              <div className="flex items-start gap-2">
+                <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-[10px] font-bold text-primary">3</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Enter your donation amount</p>
+              </div>
+            </div>
+
+            {/* Footer Note */}
+            <div className="bg-accent/10 rounded-lg p-3 border border-accent/20">
+              <p className="text-[10px] text-center text-muted-foreground">
+                <strong className="text-accent">Thank you!</strong> Your donation directly supports feeding programs across Cavite Province.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ================= HERO SECTION ================= */}
       <section className="relative min-h-[500px] lg:min-h-[600px] flex items-center overflow-hidden">
-        {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img 
             src={volunteersImg} 
@@ -159,10 +335,8 @@ const GetInvolved = () => {
           />
         </div>
         
-        {/* Gradient Overlay for Readability */}
         <div className="absolute inset-0 z-10 bg-gradient-to-r from-background via-background/90 to-transparent"></div>
 
-        {/* Content Container */}
         <div className="container mx-auto px-6 md:px-12 relative z-20 ">
           <div className="max-w-3xl animate-fade-in space-y-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 backdrop-blur-sm rounded-full border border-primary/30">
@@ -185,7 +359,6 @@ const GetInvolved = () => {
       {/* ================= ACTION CARDS SECTION ================= */}
       <section className="relative py-20 z-20">
         
-        {/* Top Blender Fade */}
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background via-background/60 to-transparent pointer-events-none"></div>
 
         <div className="container mx-auto px-6 md:px-12 relative z-10">
@@ -205,10 +378,8 @@ const GetInvolved = () => {
               return (
                 <Card
                   key={index}
-                  className="group relative overflow-hidden bg-white/40 backdrop-blur-xl border border-white/50 p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer"
-                  onClick={() => completeTask('page_visit')}
+                  className="group relative overflow-hidden bg-white/40 backdrop-blur-xl border border-white/50 p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
                 >
-                  {/* Hover Glow */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${styles.glow} to-transparent opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
                   
                   <div className="relative z-10">
@@ -237,7 +408,8 @@ const GetInvolved = () => {
                     </div>
                     
                     <Button 
-                      size="lg" 
+                      size="lg"
+                      onClick={card.onClick}
                       className={`w-full font-bold shadow-md hover:shadow-lg transition-all ${
                         card.color === 'primary' ? 'bg-primary text-primary-foreground hover:bg-primary/90' :
                         card.color === 'secondary' ? 'bg-secondary text-secondary-foreground hover:bg-secondary/90' :
@@ -246,6 +418,7 @@ const GetInvolved = () => {
                       }`}
                     >
                       {card.action}
+                      {card.color === 'accent' && <ExternalLink className="ml-2 h-4 w-4" />}
                     </Button>
                   </div>
                 </Card>
@@ -256,7 +429,7 @@ const GetInvolved = () => {
       </section>
 
       {/* ================= VOLUNTEER FORM SECTION ================= */}
-      <section className="relative py-24 bg-gradient-to-b from-background to-primary/5">
+      <section id="volunteer-form-section" className="relative py-24 bg-gradient-to-b from-background to-primary/5">
         <div className="container mx-auto px-6 md:px-12 relative z-10">
           <div className="max-w-4xl mx-auto">
             
@@ -285,6 +458,7 @@ const GetInvolved = () => {
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
                       required
+                      disabled={isSubmitting}
                       className="bg-white/50 border-primary/20 focus:border-primary h-12"
                     />
                   </div>
@@ -298,6 +472,7 @@ const GetInvolved = () => {
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
                       required
+                      disabled={isSubmitting}
                       className="bg-white/50 border-primary/20 focus:border-primary h-12"
                     />
                   </div>
@@ -311,6 +486,7 @@ const GetInvolved = () => {
                       placeholder="+63 912 345 6789"
                       value={formData.phone}
                       onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      disabled={isSubmitting}
                       className="bg-white/50 border-primary/20 focus:border-primary h-12"
                     />
                   </div>
@@ -323,6 +499,7 @@ const GetInvolved = () => {
                       value={formData.location}
                       onChange={(e) => setFormData({...formData, location: e.target.value})}
                       required
+                      disabled={isSubmitting}
                       className="bg-white/50 border-primary/20 focus:border-primary h-12"
                     />
                   </div>
@@ -335,6 +512,7 @@ const GetInvolved = () => {
                     placeholder="e.g., Feeding programs, Food drives"
                     value={formData.interest}
                     onChange={(e) => setFormData({...formData, interest: e.target.value})}
+                    disabled={isSubmitting}
                     className="bg-white/50 border-primary/20 focus:border-primary h-12"
                   />
                 </div>
@@ -347,17 +525,28 @@ const GetInvolved = () => {
                     value={formData.message}
                     onChange={(e) => setFormData({...formData, message: e.target.value})}
                     rows={4}
+                    disabled={isSubmitting}
                     className="bg-white/50 border-primary/20 focus:border-primary resize-none"
                   />
                 </div>
 
                 <Button 
                   type="submit" 
-                  size="lg" 
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-14 text-lg shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
+                  size="lg"
+                  disabled={isSubmitting}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-14 text-lg shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <CheckCircle className="mr-2 h-6 w-6" />
-                  Submit Application
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="mr-2 h-6 w-6" />
+                      Submit Application
+                    </>
+                  )}
                 </Button>
               </form>
             </Card>
@@ -367,7 +556,6 @@ const GetInvolved = () => {
 
       {/* ================= IMPACT STATS ================= */}
       <section className="py-24 bg-gradient-to-r from-secondary via-primary/80 to-accent relative overflow-hidden">
-        {/* Decorative Patterns */}
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZS13aWR0aD0iMiIvPjwvZz48L3N2Zz4=')] opacity-10 animate-pulse"></div>
         <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background to-transparent pointer-events-none"></div>
 
