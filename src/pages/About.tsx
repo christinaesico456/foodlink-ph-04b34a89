@@ -212,6 +212,90 @@ const About = () => {
         </div>
       </section>
 
+      {/* ================= OUR FOCUS PROBLEM ================= */}
+      <section className="py-24 bg-gradient-to-br from-primary/5 to-secondary/5">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full border border-accent/30 mb-4">
+                <AlertCircle className="h-4 w-4 text-accent" />
+                <span className="text-sm font-bold text-accent">Our Group's Focus</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black">
+                The <span className="text-accent">Problem</span> We Address
+              </h2>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              <Card 
+                className="p-8 bg-white border-2 border-accent/20 hover:shadow-xl transition-all cursor-pointer"
+                onClick={() => completeTask("case_study")}
+              >
+                <div className="space-y-4">
+                  <div className="inline-flex p-3 bg-accent/10 rounded-full">
+                    <Users className="h-8 w-8 text-accent" />
+                  </div>
+                  <h3 className="text-2xl font-black text-foreground">Child Malnutrition in Cavite</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Our group focuses on addressing <strong className="text-accent">child malnutrition</strong> in 
+                    underserved communities across Cavite Province. Despite being part of the industrialized 
+                    CALABARZON region, many children in rural barangays suffer from stunting and wasting due 
+                    to inadequate access to nutritious food.
+                  </p>
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-sm text-muted-foreground">
+                      <strong>Target Areas:</strong> Barangays in Indang, Maragondon, Alfonso, and General Trias
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card 
+                className="p-8 bg-white border-2 border-secondary/20 hover:shadow-xl transition-all cursor-pointer"
+                onClick={() => completeTask("case_study")}
+              >
+                <div className="space-y-4">
+                  <div className="inline-flex p-3 bg-secondary/10 rounded-full">
+                    <TrendingDown className="h-8 w-8 text-secondary" />
+                  </div>
+                  <h3 className="text-2xl font-black text-foreground">Food Accessibility Gap</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    We identified a critical <strong className="text-secondary">disconnect between food producers and 
+                    vulnerable families</strong>. While Cavite has productive agricultural areas, distribution challenges 
+                    and economic barriers prevent nutritious food from reaching those who need it most.
+                  </p>
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-sm text-muted-foreground">
+                      <strong>Key Issue:</strong> 20.3% poverty incidence in CALABARZON rural areas (PSA, 2021)
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            <Card 
+              className="mt-8 p-8 bg-gradient-to-r from-primary/10 to-secondary/10 border-2 border-primary/20 cursor-pointer"
+              onClick={() => completeTask("read_article")}
+            >
+              <div className="text-center space-y-4">
+                <h3 className="text-2xl font-black text-foreground">Our Solution Approach</h3>
+                <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                  FoodLink PH aims to <strong className="text-primary">bridge the gap</strong> between food sources and 
+                  food-insecure communities through digital awareness, community engagement, and partnership 
+                  with local organizations. We believe that by <strong className="text-secondary">connecting people, 
+                  resources, and knowledge</strong>, we can make meaningful progress toward SDG 2: Zero Hunger.
+                </p>
+                <div className="flex flex-wrap justify-center gap-4 pt-4">
+                  <span className="px-4 py-2 bg-primary/20 text-primary font-bold rounded-full text-sm">Awareness Campaigns</span>
+                  <span className="px-4 py-2 bg-secondary/20 text-secondary font-bold rounded-full text-sm">Community Feeding</span>
+                  <span className="px-4 py-2 bg-accent/20 text-accent font-bold rounded-full text-sm">Volunteer Networks</span>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* ================= ABOUT CAVITE ================= */}
       <section className="py-24 bg-muted/10">
         <div className="container mx-auto px-6 md:px-12">

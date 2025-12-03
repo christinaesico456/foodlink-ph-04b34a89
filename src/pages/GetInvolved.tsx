@@ -269,18 +269,21 @@ const GetInvolved = () => {
               </p>
             </div>
 
-            {/* Donation Drive Progress */}
+            {/* Donation Drive Progress - Connected to Gamification */}
             <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl p-3 mb-4 border border-primary/20">
               <div className="text-center">
                 <p className="text-xs font-semibold text-muted-foreground mb-0.5">
-                  🎯 Donation Drive Progress
+                  🎯 Community Donation Drive
                 </p>
                 <p className="text-3xl font-black text-primary mb-0.5">
-                  ₱{data.totalDonations}
+                  ₱{data.totalDonations.toLocaleString()}
                 </p>
                 <p className="text-[10px] text-muted-foreground">
-                  Generated through community engagement
+                  Unlocked by users reaching new levels
                 </p>
+                <div className="mt-2 text-xs text-secondary font-semibold">
+                  Level {data.currentLevel} • {data.livesImpacted} lives impacted
+                </div>
               </div>
             </div>
 

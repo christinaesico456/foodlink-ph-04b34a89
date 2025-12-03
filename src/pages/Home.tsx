@@ -122,7 +122,11 @@ const Home = () => {
               const hoverIconClass = `group-hover/card:text-${stat.hoverColor}`
 
               return (
-                <div key={i} className="relative group/card">
+                <div 
+                  key={i} 
+                  className="relative group/card cursor-pointer"
+                  onClick={() => completeTask('learn_fact')}
+                >
                   <div className={`h-full flex flex-col items-center justify-center text-center p-8 lg:p-10 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg transition-all duration-300 hover:-translate-y-2 ${hoverBgClass} hover:shadow-2xl`}>
                     <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 ${hoverGlowClass} rounded-full blur-2xl opacity-0 group-hover/card:opacity-100 transition-opacity duration-500`}></div>
                     
