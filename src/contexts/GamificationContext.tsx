@@ -1,6 +1,7 @@
 // src/contexts/GamificationContext.tsx
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useAuth } from './AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 // Level Definitions - Progressive difficulty with meaningful milestones
 export const LEVELS = [
@@ -273,9 +274,24 @@ export const GamificationProvider = ({ children }: { children: ReactNode }) => {
     let newLevel = data.currentLevel;
     let newDonations = data.totalDonations;
 
+    // Track level ups and save donations to database
+    const levelsGained: number[] = [];
     while (newLevel < LEVELS.length && newTotalPoints >= LEVELS[newLevel - 1].pointsRequired) {
+      levelsGained.push(newLevel);
       newDonations += LEVELS[newLevel - 1].donation;
       newLevel++;
+    }
+
+    // Save each level-up donation to the database
+    if (levelsGained.length > 0 && user) {
+      levelsGained.forEach(async (levelReached) => {
+        const donationAmount = LEVELS[levelReached - 1].donation;
+        await supabase.from('gamification_donations').insert({
+          user_id: user.uid,
+          amount: donationAmount,
+          level_reached: levelReached
+        });
+      });
     }
 
     setData(prev => ({

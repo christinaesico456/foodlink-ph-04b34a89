@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { HandHeart, Users, PhilippinePeso, Share2, Heart, Megaphone, CheckCircle, X, ExternalLink } from "lucide-react";
 import { useGamification } from "@/contexts/GamificationContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { DonationDriveDisplay } from "@/components/DonationDriveDisplay";
 import { useEffect, useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { db } from "@/firebase/config";
@@ -270,22 +271,7 @@ const GetInvolved = () => {
             </div>
 
             {/* Donation Drive Progress - Connected to Gamification */}
-            <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl p-3 mb-4 border border-primary/20">
-              <div className="text-center">
-                <p className="text-xs font-semibold text-muted-foreground mb-0.5">
-                  🎯 Community Donation Drive
-                </p>
-                <p className="text-3xl font-black text-primary mb-0.5">
-                  ₱{data.totalDonations.toLocaleString()}
-                </p>
-                <p className="text-[10px] text-muted-foreground">
-                  Unlocked by users reaching new levels
-                </p>
-                <div className="mt-2 text-xs text-secondary font-semibold">
-                  Level {data.currentLevel} • {data.livesImpacted} lives impacted
-                </div>
-              </div>
-            </div>
+            <DonationDriveDisplay />
 
             {/* QR Code */}
             <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-border flex justify-center">
