@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { MapPin, Building2 } from 'lucide-react';
+import { useGamification } from '@/contexts/GamificationContext';
 
 declare global {
   interface Window {
@@ -13,6 +14,8 @@ const CaviteMap = () => {
   const map = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const { completeTask } = useGamification();
+  const mapInteractionRef = useRef(false);
 
   // Organizations with verified locations in Cavite
   const organizations = [
@@ -198,6 +201,12 @@ const CaviteMap = () => {
             </div>
           `;
           marker.bindPopup(popupContent);
+          marker.on('click', () => {
+            if (!mapInteractionRef.current) {
+              mapInteractionRef.current = true;
+              completeTask('map_explore');
+            }
+          });
         });
 
         setIsLoading(false);
