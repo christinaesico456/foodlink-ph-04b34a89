@@ -14,48 +14,39 @@ export const LEVELS = [
   { level: 7, title: "Zero Hunger Champion", pointsRequired: 6500, donation: 50 }
 ];
 
-// TASK CATEGORIES - More diverse and challenging tasks
+// TASK CATEGORIES - Connected to actual website content
 export const TASK_POOL = {
   quick: [
-    { id: "page_visit", title: "Explore a program page", points: 8, icon: "🏠", cooldown: 0, category: "Navigation" },
-    { id: "learn_fact", title: "Read a hunger statistic", points: 10, icon: "📊", cooldown: 0, category: "Education" },
-    { id: "view_org", title: "Check organization profile", points: 12, icon: "🏢", cooldown: 0, category: "Discovery" },
-    { id: "check_news", title: "Read latest hunger news", points: 15, icon: "📰", cooldown: 300000, category: "Awareness" },
-    { id: "view_gallery", title: "Browse impact gallery", points: 10, icon: "🖼️", cooldown: 600000, category: "Inspiration" },
-    { id: "quick_quiz", title: "Take a 3-question quiz", points: 20, icon: "🎯", cooldown: 1800000, category: "Learning" },
+    { id: "page_visit", title: "Visit the Home page", points: 8, icon: "🏠", cooldown: 0, category: "Navigation", link: "/" },
+    { id: "learn_fact", title: "Read hunger statistics on Home", points: 10, icon: "📊", cooldown: 0, category: "Education", link: "/" },
+    { id: "view_org", title: "View an organization profile", points: 12, icon: "🏢", cooldown: 0, category: "Discovery", link: "/organizations" },
+    { id: "about_visit", title: "Learn about FoodLink PH", points: 10, icon: "ℹ️", cooldown: 0, category: "Navigation", link: "/about" },
+    { id: "quick_quiz", title: "Take the SDG 2 Quiz", points: 20, icon: "🎯", cooldown: 1800000, category: "Learning", link: "/quiz" },
   ],
   
   medium: [
-    { id: "read_article", title: "Read full article (2+ min)", points: 30, icon: "📖", cooldown: 0, category: "Deep Learning" },
-    { id: "watch_video", title: "Watch educational video", points: 35, icon: "🎥", cooldown: 0, category: "Media" },
-    { id: "map_explore", title: "Explore interactive map (1+ min)", points: 25, icon: "🗺️", cooldown: 900000, category: "Exploration" },
-    { id: "case_study", title: "Read a success story", points: 35, icon: "📝", cooldown: 1800000, category: "Inspiration" },
-    { id: "download_resource", title: "Download educational material", points: 25, icon: "📚", cooldown: 3600000, category: "Resources" },
-    { id: "compare_orgs", title: "Compare 3 organizations", points: 40, icon: "⚖️", cooldown: 3600000, category: "Analysis" },
-    { id: "interactive_tool", title: "Use hunger calculator", points: 38, icon: "🧮", cooldown: 7200000, category: "Tools" },
+    { id: "read_article", title: "Read About page problem section", points: 30, icon: "📖", cooldown: 0, category: "Deep Learning", link: "/about" },
+    { id: "map_explore", title: "Explore the Cavite hunger map", points: 25, icon: "🗺️", cooldown: 900000, category: "Exploration", link: "/get-involved" },
+    { id: "case_study", title: "Read a community story", points: 35, icon: "📝", cooldown: 1800000, category: "Inspiration", link: "/community" },
+    { id: "get_involved_visit", title: "Explore ways to help", points: 20, icon: "💪", cooldown: 0, category: "Action", link: "/get-involved" },
+    { id: "compare_orgs", title: "Compare 3 organizations", points: 40, icon: "⚖️", cooldown: 3600000, category: "Analysis", link: "/organizations" },
   ],
   
   engagement: [
-    { id: "leave_feedback", title: "Write detailed feedback (50+ words)", points: 50, icon: "💭", cooldown: 7200000, category: "Feedback" },
-    { id: "share_social", title: "Share content on social media", points: 45, icon: "📢", cooldown: 14400000, category: "Advocacy" },
-    { id: "email_share", title: "Email resources to 2+ people", points: 55, icon: "📧", cooldown: 86400000, category: "Outreach" },
-    { id: "create_plan", title: "Create personal action plan", points: 60, icon: "📋", cooldown: 86400000, category: "Planning" },
-    { id: "attend_webinar", title: "Register for virtual event", points: 50, icon: "🎓", cooldown: 604800000, category: "Events" },
+    { id: "share_social", title: "Share FoodLink on social media", points: 45, icon: "📢", cooldown: 14400000, category: "Advocacy" },
+    { id: "volunteer_interest", title: "Read volunteer opportunities", points: 30, icon: "🙋", cooldown: 0, category: "Volunteering", link: "/get-involved" },
+    { id: "donate_section", title: "Visit donation section", points: 25, icon: "💝", cooldown: 0, category: "Support", link: "/get-involved" },
   ],
   
   highImpact: [
-    { id: "volunteer_form", title: "Complete volunteer application", points: 80, icon: "✋", cooldown: 172800000, category: "Volunteering" },
-    { id: "donation_intent", title: "Submit donation interest form", points: 100, icon: "💝", cooldown: 259200000, category: "Support" },
-    { id: "community_post", title: "Write blog/forum post (200+ words)", points: 90, icon: "✍️", cooldown: 259200000, category: "Content" },
-    { id: "mentor_signup", title: "Sign up as program mentor", points: 120, icon: "🤝", cooldown: 604800000, category: "Leadership" },
-    { id: "partnership_inquiry", title: "Submit partnership proposal", points: 150, icon: "🤝", cooldown: 1209600000, category: "Collaboration" },
+    { id: "volunteer_form", title: "Fill out volunteer form", points: 80, icon: "✋", cooldown: 172800000, category: "Volunteering", link: "/get-involved" },
+    { id: "complete_quiz", title: "Score 80%+ on full quiz", points: 100, icon: "🏆", cooldown: 86400000, category: "Achievement", link: "/quiz" },
+    { id: "community_read_all", title: "Read 3 community stories", points: 75, icon: "📚", cooldown: 259200000, category: "Inspiration", link: "/community" },
   ],
   
   special: [
     { id: "daily_login", title: "Daily visit bonus", points: 20, icon: "🌅", cooldown: 86400000, category: "Consistency" },
-    { id: "weekend_warrior", title: "Weekend engagement bonus", points: 40, icon: "🎊", cooldown: 604800000, category: "Special" },
-    { id: "complete_series", title: "Complete 3-part article series", points: 75, icon: "📚", cooldown: 259200000, category: "Achievement" },
-    { id: "survey_complete", title: "Complete monthly survey", points: 65, icon: "📋", cooldown: 2592000000, category: "Research" },
+    { id: "complete_series", title: "Visit all main pages", points: 75, icon: "🎖️", cooldown: 259200000, category: "Achievement" },
   ]
 };
 
