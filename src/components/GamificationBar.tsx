@@ -206,18 +206,191 @@ const GamificationBar = () => {
     );
   }
 
+  // Maximized modal view
+  if (isMaximized) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="bg-white rounded-3xl shadow-2xl border-2 border-gray-200 overflow-hidden w-full max-w-4xl max-h-[90vh] flex flex-col">
+          <div className="h-2 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 flex-shrink-0"></div>
+          
+          <div className="p-8 overflow-y-auto flex-1">
+            {/* Header with User Info */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                {user.photoURL ? (
+                  <img 
+                    src={user.photoURL} 
+                    alt="Profile" 
+                    className="w-14 h-14 rounded-full border-3 border-amber-500"
+                  />
+                ) : (
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center text-white font-black text-2xl">
+                    {data.currentLevel}
+                  </div>
+                )}
+                <div>
+                  <h3 className="text-xl font-black text-gray-900">
+                    {user.displayName || 'Impact Warrior'}
+                  </h3>
+                  <p className="text-sm text-gray-500">Level {data.currentLevel} • {currentLevelData.title}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsMaximized(false)}
+                className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors text-2xl"
+                title="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Level Progress */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-lg font-bold text-gray-700">{currentLevelData.title}</span>
+                <span className="text-sm font-semibold text-gray-500">
+                  {data.totalPoints} / {currentLevelData.pointsRequired} points
+                </span>
+              </div>
+              <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 transition-all duration-500 rounded-full"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              {!isMaxLevel && (
+                <p className="text-sm text-amber-600 font-semibold mt-2">
+                  🎯 {pointsToNext} points until ₱{currentLevelData.donation} donation unlocked
+                </p>
+              )}
+            </div>
+
+            {/* Stats Grid - Larger in modal */}
+            <div className="grid grid-cols-4 gap-4 mb-6">
+              <div className="bg-gradient-to-br from-amber-50 to-yellow-100 rounded-xl p-4 border border-amber-200 text-center">
+                <div className="text-3xl mb-2">💰</div>
+                <div className="text-2xl font-black text-gray-900">₱{data.totalDonations}</div>
+                <div className="text-sm text-gray-600 font-medium">Donated</div>
+              </div>
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200 text-center">
+                <div className="text-3xl mb-2">🔥</div>
+                <div className="text-2xl font-black text-gray-900">{data.dayStreak}</div>
+                <div className="text-sm text-gray-600 font-medium">Day Streak</div>
+              </div>
+              <div className="bg-gradient-to-br from-yellow-50 to-amber-100 rounded-xl p-4 border border-yellow-200 text-center">
+                <div className="text-3xl mb-2">✅</div>
+                <div className="text-2xl font-black text-gray-900">{data.actionsToday}</div>
+                <div className="text-sm text-gray-600 font-medium">Actions Today</div>
+              </div>
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200 text-center">
+                <div className="text-3xl mb-2">👥</div>
+                <div className="text-2xl font-black text-gray-900">{data.livesImpacted}</div>
+                <div className="text-sm text-gray-600 font-medium">Lives Impacted</div>
+              </div>
+            </div>
+
+            {/* Task Filters */}
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-black text-gray-900">Today's Tasks</h4>
+              <button
+                onClick={refreshDailyTasks}
+                className="text-sm px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold text-gray-700 transition-colors"
+              >
+                🔄 Refresh Tasks
+              </button>
+            </div>
+
+            <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all ${
+                    selectedCategory === cat
+                      ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {cat === "all" ? "All Tasks" : cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Tasks Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filteredTasks.map(task => {
+                const status = getTaskStatus(task.id);
+                const completion = data.taskCompletions.find(c => c.taskId === task.id);
+                
+                return (
+                  <div
+                    key={task.id}
+                    className={`group rounded-xl border-2 p-4 transition-all ${
+                      status.canComplete
+                        ? 'bg-white border-gray-200 hover:border-amber-400 hover:shadow-md'
+                        : 'bg-gray-50 border-gray-200 opacity-70'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="text-3xl flex-shrink-0">{task.icon}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h5 className="text-sm font-bold text-gray-900 leading-tight">
+                            {task.title}
+                          </h5>
+                          {completion && completion.count > 0 && (
+                            <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-bold flex-shrink-0">
+                              {completion.count}×
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs mb-2">
+                          <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded font-semibold">
+                            +{task.points} pts
+                          </span>
+                          <span className="text-gray-500">{task.category}</span>
+                        </div>
+                        {!status.canComplete && (
+                          <div className="text-xs text-orange-600 font-semibold mb-2">
+                            ⏱ Available in {formatCooldown(status.cooldownRemaining)}
+                          </div>
+                        )}
+                        <button
+                          onClick={() => completeTask(task.id)}
+                          disabled={!status.canComplete}
+                          className={`w-full px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                            status.canComplete
+                              ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-white hover:shadow-lg hover:scale-105'
+                              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          }`}
+                        >
+                          {status.canComplete ? 'Complete' : 'Locked'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="p-4 border-t border-gray-200 bg-gray-50">
+            <p className="text-sm text-center text-gray-500 italic">
+              🌱 Every action brings us closer to zero hunger in Cavite
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`fixed z-50 transition-all duration-300 ${
-      isMaximized 
-        ? 'inset-4 w-auto max-h-none' 
-        : 'bottom-4 right-4 w-96 max-h-[85vh]'
-    } overflow-hidden`}>
-      <div className={`bg-white shadow-2xl border-2 border-gray-200 overflow-hidden h-full flex flex-col ${
-        isMaximized ? 'rounded-3xl' : 'rounded-2xl'
-      }`}>
-        <div className="h-2 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 flex-shrink-0"></div>
+    <div className="fixed bottom-4 right-4 z-50 w-96 max-h-[85vh] overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl border-2 border-gray-200 overflow-hidden">
+        <div className="h-2 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600"></div>
         
-        <div className={`${isMaximized ? 'p-8 overflow-y-auto flex-1' : 'p-5'}`}>
+        <div className="p-5">
           {/* Header with User Info */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
