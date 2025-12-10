@@ -8,6 +8,7 @@ const GamificationBar = () => {
   const { data, currentLevelData, progressPercent, completeTask, getTaskStatus, availableTasks, refreshDailyTasks } = useGamification();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [, forceUpdate] = useState({});
   const [signingIn, setSigningIn] = useState(false);
@@ -206,11 +207,17 @@ const GamificationBar = () => {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-96 max-h-[85vh] overflow-hidden">
-      <div className="bg-white rounded-2xl shadow-2xl border-2 border-gray-200 overflow-hidden">
-        <div className="h-2 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600"></div>
+    <div className={`fixed z-50 transition-all duration-300 ${
+      isMaximized 
+        ? 'inset-4 w-auto max-h-none' 
+        : 'bottom-4 right-4 w-96 max-h-[85vh]'
+    } overflow-hidden`}>
+      <div className={`bg-white shadow-2xl border-2 border-gray-200 overflow-hidden h-full flex flex-col ${
+        isMaximized ? 'rounded-3xl' : 'rounded-2xl'
+      }`}>
+        <div className="h-2 bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 flex-shrink-0"></div>
         
-        <div className="p-5">
+        <div className={`${isMaximized ? 'p-8 overflow-y-auto flex-1' : 'p-5'}`}>
           {/* Header with User Info */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -232,7 +239,7 @@ const GamificationBar = () => {
                 <p className="text-xs text-gray-500">Level {data.currentLevel}</p>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               <button
                 onClick={handleSignOut}
                 className="w-8 h-8 rounded-lg hover:bg-red-50 flex items-center justify-center transition-colors"
@@ -241,8 +248,16 @@ const GamificationBar = () => {
                 <span className="text-red-500">⎋</span>
               </button>
               <button
+                onClick={() => setIsMaximized(!isMaximized)}
+                className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
+                title={isMaximized ? "Exit fullscreen" : "Fullscreen"}
+              >
+                <span className="text-gray-400">{isMaximized ? '⊟' : '⊞'}</span>
+              </button>
+              <button
                 onClick={() => setIsMinimized(true)}
                 className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
+                title="Minimize"
               >
                 <span className="text-gray-400">−</span>
               </button>
@@ -271,7 +286,7 @@ const GamificationBar = () => {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-4 gap-2 mb-5">
+          <div className={`grid gap-2 mb-5 ${isMaximized ? 'grid-cols-4 md:grid-cols-8' : 'grid-cols-4'}`}>
             <div className="bg-gradient-to-br from-amber-50 to-yellow-100 rounded-xl p-3 border border-amber-200">
               <div className="text-2xl mb-1">💰</div>
               <div className="text-lg font-black text-gray-900">₱{data.totalDonations}</div>
@@ -323,8 +338,8 @@ const GamificationBar = () => {
           </div>
 
           {/* Tasks List */}
-          <div className={`space-y-2 transition-all duration-300 ${
-            isExpanded ? 'max-h-96 overflow-y-auto' : 'max-h-64 overflow-y-auto'
+          <div className={`transition-all duration-300 ${
+            isMaximized ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3' : 'space-y-2 ' + (isExpanded ? 'max-h-96 overflow-y-auto' : 'max-h-64 overflow-y-auto')
           }`}>
             {filteredTasks.map(task => {
               const status = getTaskStatus(task.id);
